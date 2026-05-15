@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEO LEADS - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 2px solid rgba(56, 189, 248, 0.3);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(56, 189, 248, 0.15);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            color: #38bdf8;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .metric:last-child { border-bottom: none; }
+
+        .metric-label { color: #94a3b8; font-size: 0.95rem; }
+
+        .metric-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .value-jeff { color: #fbbf24; }
+        .value-william { color: #34d399; }
+        .value-total { color: #f472b6; }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 10px;
+        }
+
+        .chart-large { height: 400px; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-warm { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .badge-progress { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+        .badge-sold { background: rgba(52, 211, 153, 0.2); color: #34d399; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        th {
+            color: #38bdf8;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        td { color: #cbd5e1; }
+
+        tr:hover td { background: rgba(56, 189, 248, 0.05); }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .fill-jeff { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+        .fill-william { background: linear-gradient(90deg, #34d399, #10b981); }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-col { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+        }
+
+        .total-row {
+            font-weight: 700;
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(192, 132, 252, 0.1));
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .highlight-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #38bdf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .highlight-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PEO LEADS</h1>
+            <div class="subtitle">Performance Dashboard & Lead Allocation</div>
+        </header>
+
+        <!-- Top Metrics -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div class="highlight-box">
+                <div class="highlight-number" id="totalLeads">0</div>
+                <div class="highlight-label">Total Leads</div>
+            </div>
+            <div class="highlight-box">
+                <div class="highlight-number" id="totalCalls">0</div>
+                <div class="highlight-label">Total Calls Made</div>
+            </div>
+            <div class="highlight-box">
+                <div class="highlight-number" id="totalAppts">0</div>
+                <div class="highlight-label">Appointments Set</div>
+            </div>
+            <div class="highlight-box">
+                <div class="highlight-number" id="totalSold">0</div>
+                <div class="highlight-label">PEO Sold</div>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <!-- Lead Sources -->
+            <div class="card">
+                <div class="card-title">📊 Lead Sources Overview</div>
+                <div class="chart-container">
+                    <canvas id="sourcesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Lead Allocation -->
+            <div class="card">
+                <div class="card-title">🎯 Lead Allocation (Jeff vs William)</div>
+                <div class="chart-container">
+                    <canvas id="allocationChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pipeline Status -->
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+            <div class="card">
+                <div class="card-title">🔥 PEO Warm Leads</div>
+                <div class="metric">
+                    <span class="metric-label">Jeff</span>
+                    <span class="metric-value value-jeff">16</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">William</span>
+                    <span class="metric-value value-william">1</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill fill-jeff" style="width: 94%"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">⚡ PEO Leads In Progress</div>
+                <div class="metric">
+                    <span class="metric-label">Jeff</span>
+                    <span class="metric-value value-jeff">15</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">William</span>
+                    <span class="metric-value value-william">0</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill fill-jeff" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">✅ PEO Sold</div>
+                <div class="metric">
+                    <span class="metric-label">Jeff</span>
+                    <span class="metric-value value-jeff">5</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">William</span>
+                    <span class="metric-value value-william">1</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill fill-jeff" style="width: 83%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Activity -->
+        <div class="card">
+            <div class="card-title">📈 Weekly Activity: Calls, Appointments & Show-ups</div>
+            <div class="chart-container chart-large">
+                <canvas id="weeklyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Detailed Tables -->
+        <div class="two-col">
+            <div class="card">
+                <div class="card-title">📋 Lead Sources Breakdown</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Lead Source</th>
+                            <th style="text-align:right">Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sourcesTable"></tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📋 Lead Allocation Detail</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Lead Source</th>
+                            <th style="text-align:right" class="value-jeff">Jeff</th>
+                            <th style="text-align:right" class="value-william">William</th>
+                            <th style="text-align:right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allocationTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Weekly Breakdown Table -->
+        <div class="card">
+            <div class="card-title">📅 Weekly Performance Breakdown</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Agent</th>
+                        <th>Week</th>
+                        <th style="text-align:right">Calls Made</th>
+                        <th style="text-align:right">Appointments</th>
+                        <th style="text-align:right">Showed Up</th>
+                    </tr>
+                </thead>
+                <tbody id="weeklyTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const leadSources = [
+            { name: 'Vensure PEO - FL', count: 450 },
+            { name: 'Vensure PEO - NY', count: 380 },
+            { name: 'Vensure PEO - GA', count: 220 },
+            { name: 'Vensure PEO - NJ', count: 45 },
+            { name: 'Vensure PEO - PA', count: 35 },
+            { name: 'ADP PEO - NY', count: 1264 },
+            { name: 'ADP PEO - NJ', count: 401 },
+            { name: 'TRINET PEO - NY', count: 233 },
+            { name: 'TRINET PEO - NJ', count: 53 },
+            { name: 'Paychex', count: 405 }
+        ];
+
+        const allocation = [
+            { source: 'Vensure PEO - FL', jeff: 250, william: 200 },
+            { source: 'Vensure PEO - NY', jeff: 300, william: 180 },
+            { source: 'Vensure PEO - GA', jeff: 150, william: 70 },
+            { source: 'Vensure PEO - NJ', jeff: 0, william: 47 },
+            { source: 'Vensure PEO - PA', jeff: 35, william: 0 },
+            { source: 'ADP PEO - NY', jeff: 700, william: 564 },
+            { source: 'ADP PEO - NJ', jeff: 200, william: 201 },
+            { source: 'TRINET PEO - NY', jeff: 100, william: 133 },
+            { source: 'TRINET PEO - NJ', jeff: 53, william: 0 },
+            { source: 'Paychex', jeff: 205, william: 200 }
+        ];
+
+        const weeklyData = [
+            { agent: 'Jeff', week: 'Mar 30 - Apr 4', calls: 381, appts: 0, showed: 0 },
+            { agent: 'William', week: 'Mar 30 - Apr 4', calls: 74, appts: 0, showed: 0 },
+            { agent: 'Julien', week: 'Mar 30 - Apr 4', calls: 15, appts: 0, showed: 0 },
+            { agent: 'Jeff', week: 'Apr 6 - 10', calls: 195, appts: 0, showed: 0 },
+            { agent: 'William', week: 'Apr 6 - 10', calls: 473, appts: 0, showed: 0 },
+            { agent: 'Jeff', week: 'Apr 13 - 17', calls: 253, appts: 1, showed: 1 },
+            { agent: 'William', week: 'Apr 13 - 17', calls: 258, appts: 1, showed: 1 },
+            { agent: 'Julien', week: 'Apr 13 - 17', calls: 102, appts: 0, showed: 0 },
+            { agent: 'Jeff', week: 'Apr 20 - 24', calls: 427, appts: 0, showed: 0 },
+            { agent: 'William', week: 'Apr 20 - 24', calls: 438, appts: 0, showed: 0 },
+            { agent: 'Jeff', week: 'Apr 27 - May 1', calls: 375, appts: 1, showed: 0 },
+            { agent: 'William', week: 'Apr 27 - May 1', calls: 402, appts: 0, showed: 0 },
+            { agent: 'Jeff', week: 'May 4 - May 8', calls: 362, appts: 2, showed: 2 },
+            { agent: 'William', week: 'May 4 - May 8', calls: 325, appts: 0, showed: 0 },
+            { agent: 'Jeff', week: 'May 11 - 15', calls: 424, appts: 0, showed: 0 },
+            { agent: 'William', week: 'May 11 - 15', calls: 240, appts: 0, showed: 0 }
+        ];
+
+        // Calculate totals
+        const totalLeads = leadSources.reduce((a, b) => a + b.count, 0);
+        const totalCalls = weeklyData.reduce((a, b) => a + b.calls, 0);
+        const totalAppts = weeklyData.reduce((a, b) => a + b.appts, 0);
+        const totalSold = 6; // 5 + 1
+
+        // Animate numbers
+        function animateValue(id, end, duration) {
+            const obj = document.getElementById(id);
+            let start = 0;
+            const step = timestamp => {
+                const progress = Math.min((timestamp - start) / duration, 1);
+                obj.innerHTML = Math.floor(progress * end).toLocaleString();
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        animateValue('totalLeads', totalLeads, 1500);
+        animateValue('totalCalls', totalCalls, 1500);
+        animateValue('totalAppts', totalAppts, 1500);
+        animateValue('totalSold', totalSold, 1500);
+
+        // Populate tables
+        const sourcesTable = document.getElementById('sourcesTable');
+        leadSources.forEach(s => {
+            const row = `<tr><td>${s.name}</td><td style="text-align:right;font-weight:600">${s.count.toLocaleString()}</td></tr>`;
+            sourcesTable.innerHTML += row;
+        });
+        sourcesTable.innerHTML += `<tr class="total-row"><td>TOTAL</td><td style="text-align:right">${totalLeads.toLocaleString()}</td></tr>`;
+
+        const allocationTable = document.getElementById('allocationTable');
+        let totalJeff = 0, totalWilliam = 0;
+        allocation.forEach(a => {
+            totalJeff += a.jeff;
+            totalWilliam += a.william;
+            const row = `<tr>
+                <td>${a.source}</td>
+                <td style="text-align:right;color:#fbbf24">${a.jeff}</td>
+                <td style="text-align:right;color:#34d399">${a.william}</td>
+                <td style="text-align:right;font-weight:600">${(a.jeff + a.william).toLocaleString()}</td>
+            </tr>`;
+            allocationTable.innerHTML += row;
+        });
+        allocationTable.innerHTML += `<tr class="total-row">
+            <td>TOTAL</td>
+            <td style="text-align:right;color:#fbbf24">${totalJeff.toLocaleString()}</td>
+            <td style="text-align:right;color:#34d399">${totalWilliam.toLocaleString()}</td>
+            <td style="text-align:right">${(totalJeff + totalWilliam).toLocaleString()}</td>
+        </tr>`;
+
+        const weeklyTable = document.getElementById('weeklyTable');
+        weeklyData.forEach(w => {
+            const color = w.agent === 'Jeff' ? '#fbbf24' : (w.agent === 'William' ? '#34d399' : '#94a3b8');
+            const row = `<tr>
+                <td style="color:${color};font-weight:600">${w.agent}</td>
+                <td>${w.week}</td>
+                <td style="text-align:right">${w.calls.toLocaleString()}</td>
+                <td style="text-align:right">${w.appts}</td>
+                <td style="text-align:right">${w.showed}</td>
+            </tr>`;
+            weeklyTable.innerHTML += row;
+        });
+
+        // Chart defaults
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.1)';
+
+        // Sources Chart
+        new Chart(document.getElementById('sourcesChart'), {
+            type: 'bar',
+            data: {
+                labels: leadSources.map(s => s.name.replace('PEO - ', '')),
+                datasets: [{
+                    label: 'Leads',
+                    data: leadSources.map(s => s.count),
+                    backgroundColor: [
+                        'rgba(56, 189, 248, 0.7)',
+                        'rgba(129, 140, 248, 0.7)',
+                        'rgba(192, 132, 252, 0.7)',
+                        'rgba(244, 114, 182, 0.7)',
+                        'rgba(251, 191, 36, 0.7)',
+                        'rgba(52, 211, 153, 0.7)',
+                        'rgba(45, 212, 191, 0.7)',
+                        'rgba(96, 165, 250, 0.7)',
+                        'rgba(167, 139, 250, 0.7)',
+                        'rgba(251, 146, 60, 0.7)'
+                    ],
+                    borderColor: 'rgba(56, 189, 248, 0.5)',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Allocation Chart
+        new Chart(document.getElementById('allocationChart'), {
+            type: 'bar',
+            data: {
+                labels: allocation.map(a => a.source.replace('PEO - ', '')),
+                datasets: [
+                    {
+                        label: 'Jeff',
+                        data: allocation.map(a => a.jeff),
+                        backgroundColor: 'rgba(251, 191, 36, 0.8)',
+                        borderColor: '#fbbf24',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'William',
+                        data: allocation.map(a => a.william),
+                        backgroundColor: 'rgba(52, 211, 153, 0.8)',
+                        borderColor: '#34d399',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true, grid: { display: false } },
+                    y: { stacked: true, beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.1)' } }
+                }
+            }
+        });
+
+        // Weekly Chart
+        const weeks = [...new Set(weeklyData.map(w => w.week))];
+        const jeffCalls = weeks.map(w => weeklyData.filter(d => d.agent === 'Jeff' && d.week === w).reduce((a,b) => a + b.calls, 0));
+        const williamCalls = weeks.map(w => weeklyData.filter(d => d.agent === 'William' && d.week === w).reduce((a,b) => a + b.calls, 0));
+        const jeffAppts = weeks.map(w => weeklyData.filter(d => d.agent === 'Jeff' && d.week === w).reduce((a,b) => a + b.appts, 0));
+        const williamAppts = weeks.map(w => weeklyData.filter(d => d.agent === 'William' && d.week === w).reduce((a,b) => a + b.appts, 0));
+
+        new Chart(document.getElementById('weeklyChart'), {
+            type: 'line',
+            data: {
+                labels: weeks,
+                datasets: [
+                    {
+                        label: 'Jeff - Calls',
+                        data: jeffCalls,
+                        borderColor: '#fbbf24',
+                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'William - Calls',
+                        data: williamCalls,
+                        borderColor: '#34d399',
+                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'Jeff - Appts',
+                        data: jeffAppts,
+                        borderColor: '#f472b6',
+                        backgroundColor: 'rgba(244, 114, 182, 0.2)',
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        pointStyle: 'rectRot',
+                        pointRadius: 6
+                    },
+                    {
+                        label: 'William - Appts',
+                        data: williamAppts,
+                        borderColor: '#818cf8',
+                        backgroundColor: 'rgba(129, 140, 248, 0.2)',
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        pointStyle: 'rectRot',
+                        pointRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
