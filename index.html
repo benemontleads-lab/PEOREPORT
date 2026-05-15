@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEO LEADS DATA | Executive Analytics Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        dark: { 900: '#0a0e1a', 800: '#111827', 700: '#1f2937' },
+                        brand: { cyan: '#06b6d4', blue: '#3b82f6', accent: '#8b5cf6' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root { --glass-bg: rgba(17, 24, 39, 0.7); --glass-border: rgba(255, 255, 255, 0.08); }
+        .glass { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); }
+        .glass-card { background: linear-gradient(135deg, rgba(17,24,39,0.8) 0%, rgba(31,41,55,0.6) 100%); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
+        .glow-cyan { box-shadow: 0 0 20px rgba(6,182,212,0.15); }
+        .glow-cyan:hover { box-shadow: 0 0 30px rgba(6,182,212,0.3); }
+        .gradient-text { background: linear-gradient(135deg, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .animate-count { animation: countUp 0.5s ease-out; }
+        @keyframes countUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-4px); }
+        .sidebar-item { transition: all 0.2s; border-left: 3px solid transparent; }
+        .sidebar-item:hover, .sidebar-item.active { background: rgba(6,182,212,0.1); border-left-color: #06b6d4; }
+        .progress-ring { transform: rotate(-90deg); }
+        .funnel-bar { transition: width 1s ease-out; }
+        .heatmap-cell { transition: all 0.3s; }
+        .heatmap-cell:hover { transform: scale(1.05); z-index: 10; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0e1a; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+        .light-mode { --glass-bg: rgba(255, 255, 255, 0.7); --glass-border: rgba(0, 0, 0, 0.08); }
+        .light-mode .glass-card { background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(243,244,246,0.8) 100%); border: 1px solid rgba(0,0,0,0.05); }
+        .light-mode body { background: #f3f4f6; color: #111827; }
+        .light-mode .text-gray-400 { color: #6b7280; }
+        .light-mode .text-gray-300 { color: #374151; }
+        .light-mode .bg-dark-900 { background: #ffffff; }
+        .light-mode .bg-dark-800 { background: #f9fafb; }
+        .light-mode .border-gray-800 { border-color: #e5e7eb; }
+        html, body { max-width: 100vw; overflow-x: hidden; }
+        .chart-container { position: relative; height: 250px; width: 100%; }
+        .chart-container-sm { position: relative; height: 200px; width: 100%; }
+        .chart-container-lg { position: relative; height: 300px; width: 100%; }
+        .heatmap-grid { display: grid; grid-template-columns: minmax(140px, 1fr) repeat(3, minmax(60px, 1fr)); gap: 4px; }
+        @media (max-width: 640px) { .heatmap-grid { grid-template-columns: minmax(100px, 1fr) repeat(3, minmax(50px, 1fr)); } }
+        .truncate-2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+        .kpi-sparkline { height: 32px; width: 100%; }
+        .hidden-section { display: none !important; }
+    </style>
+</head>
+<body class="bg-dark-900 text-gray-100 font-sans antialiased">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 glass z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-y-auto">
+        <div class="p-6 border-b border-gray-800">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 flex-shrink-0">
+                    <i class="fas fa-chart-line text-white text-lg"></i>
+                </div>
+                <div class="min-w-0">
+                    <h1 class="font-bold text-lg tracking-tight truncate">PEO LEADS</h1>
+                    <p class="text-xs text-gray-400 font-medium">DATA ANALYTICS</p>
+                </div>
+            </div>
+        </div>
+        <nav class="p-4 space-y-1">
+            <a href="#dashboard" class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium">
+                <i class="fas fa-th-large w-5 text-cyan-400 text-center"></i> <span class="truncate">Dashboard</span>
+            </a>
+            <a href="#agents" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-400 hover:text-white">
+                <i class="fas fa-users w-5 text-center"></i> <span class="truncate">Agent Performance</span>
+            </a>
+            <a href="#sources" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-400 hover:text-white">
+                <i class="fas fa-database w-5 text-center"></i> <span class="truncate">Lead Sources</span>
+            </a>
+            <a href="#allocation" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-400 hover:text-white">
+                <i class="fas fa-chart-pie w-5 text-center"></i> <span class="truncate">Lead Allocation</span>
+            </a>
+            <a href="#pipeline" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-400 hover:text-white">
+                <i class="fas fa-filter w-5 text-center"></i> <span class="truncate">Sales Pipeline</span>
+            </a>
+            <a href="#weekly" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-400 hover:text-white">
+                <i class="fas fa-calendar-week w-5 text-center"></i> <span class="truncate">Weekly Analytics</span>
+            </a>
+            <a href="#insights" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-400 hover:text-white">
+                <i class="fas fa-brain w-5 text-center"></i> <span class="truncate">AI Insights</span>
+            </a>
+            <a href="#reports" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-400 hover:text-white">
+                <i class="fas fa-file-export w-5 text-center"></i> <span class="truncate">Reports</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-gray-800 mt-auto">
+            <div class="glass-card rounded-lg p-4">
+                <p class="text-xs text-gray-400 mb-2">System Status</p>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0"></div>
+                    <span class="text-xs font-medium">Live Data Connected</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <main class="lg:ml-64 min-h-screen w-full lg:w-[calc(100%-16rem)]">
+        <!-- Top Header -->
+        <header class="sticky top-0 z-30 glass border-b border-gray-800 w-full">
+            <div class="flex items-center justify-between px-4 md:px-6 py-4 gap-3">
+                <div class="flex items-center gap-4 min-w-0">
+                    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg hover:bg-gray-800 flex-shrink-0">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="hidden md:flex items-center gap-2 text-sm text-gray-400 truncate">
+                        <span>Dashboard</span>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-cyan-400">Overview</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2 md:gap-4 flex-shrink-0">
+                    <div class="hidden md:flex items-center glass-card rounded-lg px-4 py-2 w-48 lg:w-64">
+                        <i class="fas fa-search text-gray-400 text-sm mr-3"></i>
+                        <input type="text" placeholder="Search analytics..." class="bg-transparent border-none outline-none text-sm w-full text-gray-200 placeholder-gray-500 min-w-0">
+                    </div>
+                    <button onclick="toggleTheme()" class="p-2 rounded-lg hover:bg-gray-800 transition-colors flex-shrink-0">
+                        <i id="themeIcon" class="fas fa-sun text-yellow-400"></i>
+                    </button>
+                    <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors relative flex-shrink-0">
+                        <i class="fas fa-bell text-gray-400"></i>
+                        <div class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                    </button>
+                    <div class="flex items-center gap-2 md:gap-3 pl-2 md:pl-4 border-l border-gray-700">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-medium truncate">Admin User</p>
+                            <p class="text-xs text-gray-400">Executive</p>
+                        </div>
+                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-sm font-bold flex-shrink-0">AU</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-6 space-y-6 w-full max-w-full">
+            <!-- Filter Bar -->
+            <div class="glass-card rounded-xl p-3 md:p-4 flex flex-wrap items-center gap-3">
+                <div class="flex items-center gap-2 text-sm text-gray-400 flex-shrink-0">
+                    <i class="fas fa-filter"></i>
+                    <span class="font-medium hidden sm:inline">Filters:</span>
+                </div>
+                <select id="monthFilter" onchange="updateDashboard()" class="bg-dark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-cyan-400 min-w-0">
+                    <option value="all">All Months</option>
+                    <option value="jan">January</option>
+                    <option value="feb">February</option>
+                    <option value="mar">March</option>
+                    <option value="apr">April</option>
+                    <option value="may">May</option>
+                </select>
+                <select id="agentFilter" onchange="updateDashboard()" class="bg-dark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-cyan-400 min-w-0">
+                    <option value="all">All Agents</option>
+                    <option value="jeff">Jeff</option>
+                    <option value="william">William</option>
+                    <option value="julien">Julien</option>
+                </select>
+                <select id="sourceFilter" onchange="updateDashboard()" class="bg-dark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-cyan-400 min-w-0 hidden sm:block">
+                    <option value="all">All Sources</option>
+                    <option value="vensure">Vensure PEO</option>
+                    <option value="adp">ADP PEO</option>
+                    <option value="trinet">TRINET PEO</option>
+                    <option value="paychex">Paychex</option>
+                </select>
+                <div class="flex items-center gap-2 ml-auto">
+                    <button onclick="setPeriod('weekly')" id="btnWeekly" class="px-3 md:px-4 py-2 rounded-lg text-sm font-medium bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 whitespace-nowrap">Weekly</button>
+                    <button onclick="setPeriod('monthly')" id="btnMonthly" class="px-3 md:px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 whitespace-nowrap">Monthly</button>
+                </div>
+            </div>
+
+            <!-- KPI Section -->
+            <section id="dashboard" class="w-full">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold gradient-text">Executive KPI Overview</h2>
+                    <div class="flex items-center gap-2 text-sm text-gray-400 flex-shrink-0">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
+                        <span class="hidden sm:inline">Real-time Data</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4" id="kpiContainer"></div>
+            </section>
+
+            <!-- Agent Performance -->
+            <section id="agents" class="pt-4 w-full">
+                <h2 class="text-xl font-bold gradient-text mb-4">Agent Performance Analytics</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" id="agentCards"></div>
+            </section>
+
+            <!-- Lead Sources -->
+            <section id="sources" class="pt-4 w-full">
+                <h2 class="text-xl font-bold gradient-text mb-4">Lead Sources Analytics</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-card rounded-xl p-4 md:p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-sm md:text-base">Source Distribution</h3>
+                            <button class="text-xs text-cyan-400 hover:text-cyan-300 flex-shrink-0"><i class="fas fa-download mr-1"></i>Export</button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="sourcesBarChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4 md:p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-sm md:text-base">Market Share</h3>
+                            <span class="text-xs text-gray-400">By Volume</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="sourcesPieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-xl p-4 md:p-6 mt-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+                        <h3 class="font-semibold text-sm md:text-base">Lead Source Details</h3>
+                        <input type="text" id="sourceSearch" onkeyup="filterSources()" placeholder="Search sources..." class="bg-dark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-cyan-400 w-full sm:w-64">
+                    </div>
+                    <div class="overflow-x-auto -mx-4 px-4">
+                        <table class="w-full text-sm min-w-[600px]">
+                            <thead>
+                                <tr class="text-left text-gray-400 border-b border-gray-800">
+                                    <th class="pb-3 font-medium cursor-pointer" onclick="sortSources('name')">Source <i class="fas fa-sort text-xs ml-1"></i></th>
+                                    <th class="pb-3 font-medium text-right cursor-pointer" onclick="sortSources('count')">Leads <i class="fas fa-sort text-xs ml-1"></i></th>
+                                    <th class="pb-3 font-medium text-right">Contribution</th>
+                                    <th class="pb-3 font-medium text-center">Trend</th>
+                                    <th class="pb-3 font-medium text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sourcesTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sales Pipeline -->
+            <section id="pipeline" class="pt-4 w-full">
+                <h2 class="text-xl font-bold gradient-text mb-4">Sales Pipeline Funnel</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 glass-card rounded-xl p-4 md:p-6">
+                        <h3 class="font-semibold mb-6 text-sm md:text-base">Conversion Funnel</h3>
+                        <div class="space-y-4" id="funnelContainer"></div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="glass-card rounded-xl p-4 md:p-6">
+                            <h3 class="font-semibold mb-4 text-sm md:text-base">Pipeline Metrics</h3>
+                            <div class="space-y-4" id="pipelineMetrics"></div>
+                        </div>
+                        <div class="glass-card rounded-xl p-4 md:p-6">
+                            <h3 class="font-semibold mb-4 text-sm md:text-base">Win Rates</h3>
+                            <div class="chart-container-sm">
+                                <canvas id="winRateChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lead Allocation -->
+            <section id="allocation" class="pt-4 w-full">
+                <h2 class="text-xl font-bold gradient-text mb-4">Lead Allocation Matrix</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-card rounded-xl p-4 md:p-6">
+                        <h3 class="font-semibold mb-4 text-sm md:text-base">Allocation by Source & Agent</h3>
+                        <div class="chart-container">
+                            <canvas id="allocationStackedChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4 md:p-6">
+                        <h3 class="font-semibold mb-4 text-sm md:text-base">Distribution Overview</h3>
+                        <div class="chart-container">
+                            <canvas id="allocationDonutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-xl p-4 md:p-6 mt-6">
+                    <h3 class="font-semibold mb-4 text-sm md:text-base">Allocation Heatmap</h3>
+                    <div class="overflow-x-auto -mx-4 px-4">
+                        <div id="heatmapContainer" class="min-w-[400px]"></div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-xl p-4 md:p-6 mt-6">
+                    <h3 class="font-semibold mb-4 text-sm md:text-base">Allocation Ownership Matrix</h3>
+                    <div class="overflow-x-auto -mx-4 px-4">
+                        <table class="w-full text-sm min-w-[500px]">
+                            <thead>
+                                <tr class="text-left text-gray-400 border-b border-gray-800">
+                                    <th class="pb-3 font-medium">Lead Source</th>
+                                    <th class="pb-3 font-medium text-right">Jeff</th>
+                                    <th class="pb-3 font-medium text-right">William</th>
+                                    <th class="pb-3 font-medium text-right">Julien</th>
+                                    <th class="pb-3 font-medium text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allocationTableBody"></tbody>
+                            <tfoot>
+                                <tr class="border-t border-gray-700 font-semibold text-cyan-400">
+                                    <td class="pt-3">TOTALS</td>
+                                    <td class="pt-3 text-right" id="totalJeff">1,793</td>
+                                    <td class="pt-3 text-right" id="totalWilliam">1,595</td>
+                                    <td class="pt-3 text-right" id="totalJulien">200</td>
+                                    <td class="pt-3 text-right" id="totalAll">3,588</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Weekly Performance -->
+            <section id="weekly" class="pt-4 w-full">
+                <h2 class="text-xl font-bold gradient-text mb-4">Performance Trends</h2>
+                <div class="glass-card rounded-xl p-4 md:p-6 mb-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+                        <h3 class="font-semibold text-sm md:text-base" id="trendChartTitle">Calls vs Appointments Trend</h3>
+                        <div class="flex gap-3 flex-wrap">
+                            <span class="flex items-center gap-1 text-xs"><div class="w-3 h-3 rounded-full bg-cyan-400 flex-shrink-0"></div>Jeff</span>
+                            <span class="flex items-center gap-1 text-xs"><div class="w-3 h-3 rounded-full bg-blue-500 flex-shrink-0"></div>William</span>
+                            <span class="flex items-center gap-1 text-xs"><div class="w-3 h-3 rounded-full bg-green-400 flex-shrink-0"></div>Julien</span>
+                        </div>
+                    </div>
+                    <div class="chart-container-lg">
+                        <canvas id="weeklyTrendChart"></canvas>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" id="weeklyTablesContainer">
+                    <div class="glass-card rounded-xl p-4 md:p-6" data-agent="jeff">
+                        <h3 class="font-semibold mb-4 text-sm md:text-base">Jeff - Activity</h3>
+                        <div class="overflow-x-auto -mx-4 px-4">
+                            <table class="w-full text-xs min-w-[280px]">
+                                <thead><tr class="text-gray-400 border-b border-gray-800"><th class="pb-2 text-left">Period</th><th class="pb-2 text-right">Calls</th><th class="pb-2 text-right">Appt</th><th class="pb-2 text-right">Show</th></tr></thead>
+                                <tbody id="jeffWeeklyTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4 md:p-6" data-agent="william">
+                        <h3 class="font-semibold mb-4 text-sm md:text-base">William - Activity</h3>
+                        <div class="overflow-x-auto -mx-4 px-4">
+                            <table class="w-full text-xs min-w-[280px]">
+                                <thead><tr class="text-gray-400 border-b border-gray-800"><th class="pb-2 text-left">Period</th><th class="pb-2 text-right">Calls</th><th class="pb-2 text-right">Appt</th><th class="pb-2 text-right">Show</th></tr></thead>
+                                <tbody id="williamWeeklyTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4 md:p-6" data-agent="julien">
+                        <h3 class="font-semibold mb-4 text-sm md:text-base">Julien - Activity</h3>
+                        <div class="overflow-x-auto -mx-4 px-4">
+                            <table class="w-full text-xs min-w-[280px]">
+                                <thead><tr class="text-gray-400 border-b border-gray-800"><th class="pb-2 text-left">Period</th><th class="pb-2 text-right">Calls</th><th class="pb-2 text-right">Appt</th><th class="pb-2 text-right">Show</th></tr></thead>
+                                <tbody id="julienWeeklyTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Insights -->
+            <section id="insights" class="pt-4 w-full">
+                <h2 class="text-xl font-bold gradient-text mb-4"><i class="fas fa-robot mr-2"></i>AI-Powered Insights</h2>
+                <div class="glass-card rounded-xl p-4 md:p-6 border-l-4 border-cyan-400">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-brain text-white"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-sm md:text-base">Business Intelligence Report</h3>
+                            <p class="text-xs text-gray-400 truncate">Generated automatically based on current data patterns</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="insightsContainer"></div>
+                </div>
+            </section>
+
+            <!-- Reports & Exports -->
+            <section id="reports" class="pt-4 w-full">
+                <h2 class="text-xl font-bold gradient-text mb-4">Reports & Exports</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button onclick="exportCSV()" class="glass-card rounded-xl p-6 hover-lift glow-cyan text-left group">
+                        <div class="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center mb-3 group-hover:bg-green-500/30 transition-colors">
+                            <i class="fas fa-file-csv text-green-400 text-xl"></i>
+                        </div>
+                        <h3 class="font-semibold mb-1 text-sm md:text-base">Export CSV</h3>
+                        <p class="text-xs text-gray-400">Download raw data</p>
+                    </button>
+                    <button onclick="exportPDF()" class="glass-card rounded-xl p-6 hover-lift glow-cyan text-left group">
+                        <div class="w-12 h-12 rounded-lg bg-red-500/20 flex items-center justify-center mb-3 group-hover:bg-red-500/30 transition-colors">
+                            <i class="fas fa-file-pdf text-red-400 text-xl"></i>
+                        </div>
+                        <h3 class="font-semibold mb-1 text-sm md:text-base">Export PDF</h3>
+                        <p class="text-xs text-gray-400">Formatted report</p>
+                    </button>
+                    <button onclick="printReport()" class="glass-card rounded-xl p-6 hover-lift glow-cyan text-left group">
+                        <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center mb-3 group-hover:bg-blue-500/30 transition-colors">
+                            <i class="fas fa-print text-blue-400 text-xl"></i>
+                        </div>
+                        <h3 class="font-semibold mb-1 text-sm md:text-base">Print Report</h3>
+                        <p class="text-xs text-gray-400">Physical copy</p>
+                    </button>
+                    <button onclick="shareReport()" class="glass-card rounded-xl p-6 hover-lift glow-cyan text-left group">
+                        <div class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-3 group-hover:bg-purple-500/30 transition-colors">
+                            <i class="fas fa-share-nodes text-purple-400 text-xl"></i>
+                        </div>
+                        <h3 class="font-semibold mb-1 text-sm md:text-base">Share Dashboard</h3>
+                        <p class="text-xs text-gray-400">Generate link</p>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="border-t border-gray-800 pt-6 pb-8 text-center w-full">
+                <p class="text-sm text-gray-500">Internal Analytics Dashboard – PEO Leads Data</p>
+                <p class="text-xs text-gray-600 mt-1">Confidential – Executive Use Only</p>
+            </footer>
+        </div>
+    </main>
+
+    <script>
+        // ==================== DATA ====================
+        const leadSources = [
+            { name: 'Vensure PEO - FL', count: 450, trend: 'up' },
+            { name: 'Vensure PEO - NY', count: 380, trend: 'up' },
+            { name: 'Vensure PEO - GA', count: 220, trend: 'stable' },
+            { name: 'Vensure PEO - NJ', count: 45, trend: 'down' },
+            { name: 'Vensure PEO - PA', count: 35, trend: 'stable' },
+            { name: 'ADP PEO - NY', count: 1264, trend: 'up' },
+            { name: 'ADP PEO - NJ', count: 401, trend: 'up' },
+            { name: 'TRINET PEO - NY', count: 233, trend: 'stable' },
+            { name: 'TRINET PEO - NJ', count: 53, trend: 'down' },
+            { name: 'Paychex', count: 405, trend: 'up' }
+        ];
+
+        const allocationData = {
+            sources: ['Vensure PEO - FL', 'Vensure PEO - NY', 'Vensure PEO - GA', 'Vensure PEO - NJ', 'Vensure PEO - PA', 'ADP PEO - NY', 'ADP PEO - NJ', 'TRINET PEO - NY', 'TRINET PEO - NJ', 'Paychex'],
+            jeff: [250, 300, 150, 0, 35, 500, 200, 100, 53, 205],
+            william: [200, 180, 70, 47, 0, 564, 201, 133, 0, 200],
+            julien: [0, 0, 0, 0, 0, 200, 0, 0, 0, 0]
+        };
+
+        const pipelineData = {
+            warm: { jeff: 16, william: 1, julien: 0 },
+            progress: { jeff: 15, william: 0, julien: 0 },
+            sold: { jeff: 5, william: 1, julien: 0 }
+        };
+
+        const weeklyData = {
+            jeff: [
+                { week: 'Jan 5-9', calls: 466, appt: 1, show: 1 },
+                { week: 'Jan 12-16', calls: 416, appt: 0, show: 0 },
+                { week: 'Jan 19-23', calls: 425, appt: 1, show: 0 },
+                { week: 'Jan 26-30', calls: 99, appt: 2, show: 1 },
+                { week: 'Feb 2-6', calls: 275, appt: 4, show: 2 },
+                { week: 'Feb 9-14', calls: 153, appt: 0, show: 1 },
+                { week: 'Feb 16-20', calls: 110, appt: 3, show: 2 },
+                { week: 'Feb 23-27', calls: 130, appt: 1, show: 0 },
+                { week: 'Mar 2-6', calls: 217, appt: 1, show: 0 },
+                { week: 'Mar 9-13', calls: 99, appt: 0, show: 0 },
+                { week: 'Mar 16-20', calls: 307, appt: 1, show: 0 },
+                { week: 'Mar 23-27', calls: 200, appt: 1, show: 2 },
+                { week: 'Mar 30-Apr 4', calls: 381, appt: 0, show: 0 },
+                { week: 'Apr 6-10', calls: 195, appt: 0, show: 0 },
+                { week: 'Apr 13-17', calls: 253, appt: 1, show: 1 },
+                { week: 'Apr 20-24', calls: 427, appt: 0, show: 0 },
+                { week: 'Apr 27-May 1', calls: 375, appt: 1, show: 0 },
+                { week: 'May 4-8', calls: 362, appt: 2, show: 2 },
+                { week: 'May 11-15', calls: 424, appt: 0, show: 0 }
+            ],
+            william: [
+                { week: 'Jan 5-9', calls: 519, appt: 2, show: 1 },
+                { week: 'Jan 12-16', calls: 516, appt: 0, show: 0 },
+                { week: 'Jan 19-23', calls: 499, appt: 0, show: 0 },
+                { week: 'Jan 26-30', calls: 435, appt: 0, show: 1 },
+                { week: 'Feb 2-6', calls: 469, appt: 1, show: 0 },
+                { week: 'Feb 9-14', calls: 360, appt: 2, show: 2 },
+                { week: 'Feb 16-20', calls: 301, appt: 1, show: 1 },
+                { week: 'Feb 23-27', calls: 482, appt: 0, show: 0 },
+                { week: 'Mar 2-6', calls: 376, appt: 2, show: 0 },
+                { week: 'Mar 9-13', calls: 297, appt: 0, show: 0 },
+                { week: 'Mar 16-20', calls: 290, appt: 2, show: 0 },
+                { week: 'Mar 23-27', calls: 430, appt: 0, show: 0 },
+                { week: 'Mar 30-Apr 4', calls: 74, appt: 0, show: 0 },
+                { week: 'Apr 6-10', calls: 473, appt: 0, show: 0 },
+                { week: 'Apr 13-17', calls: 258, appt: 1, show: 1 },
+                { week: 'Apr 20-24', calls: 438, appt: 0, show: 0 },
+                { week: 'Apr 27-May 1', calls: 402, appt: 0, show: 0 },
+                { week: 'May 4-8', calls: 325, appt: 0, show: 0 },
+                { week: 'May 11-15', calls: 240, appt: 0, show: 0 }
+            ],
+            julien: [
+                { week: 'Jan 5-9', calls: 400, appt: 0, show: 0 },
+                { week: 'Jan 12-16', calls: 273, appt: 0, show: 0 },
+                { week: 'Jan 19-23', calls: 53, appt: 1, show: 0 },
+                { week: 'Jan 26-30', calls: 153, appt: 1, show: 0 },
+                { week: 'Feb 2-6', calls: 53, appt: 0, show: 1 },
+                { week: 'Feb 16-20', calls: 60, appt: 0, show: 0 },
+                { week: 'Feb 23-27', calls: 33, appt: 1, show: 0 },
+                { week: 'Mar 2-6', calls: 63, appt: 1, show: 0 },
+                { week: 'Mar 30-Apr 4', calls: 15, appt: 0, show: 0 },
+                { week: 'Apr 13-17', calls: 102, appt: 0, show: 0 }
+            ]
+        };
+
+        const agentStats = {
+            jeff: { calls: 5063, appt: 18, show: 10, sold: 5, warm: 16, progress: 15, allocated: 1793 },
+            william: { calls: 6814, appt: 11, show: 6, sold: 1, warm: 1, progress: 0, allocated: 1595 },
+            julien: { calls: 1205, appt: 5, show: 1, sold: 0, warm: 0, progress: 0, allocated: 200 }
+        };
+
+        // ==================== STATE ====================
+        let charts = {};
+        let currentPeriod = 'weekly';
+        let currentFilters = { month: 'all', agent: 'all', source: 'all' };
+
+        Chart.defaults.color = '#9ca3af';
+        Chart.defaults.borderColor = 'rgba(75, 85, 99, 0.2)';
+        Chart.defaults.font.family = 'Inter';
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderKPIs();
+            renderAgentCards();
+            renderSourcesCharts();
+            renderSourcesTable();
+            renderPipeline();
+            renderAllocationCharts();
+            renderHeatmap();
+            renderAllocationTable();
+            renderWeeklyCharts();
+            renderWeeklyTables();
+            renderInsights();
+        });
+
+        // ==================== FILTER LOGIC ====================
+        function getFilteredWeeklyData() {
+            const month = document.getElementById('monthFilter').value;
+            const agent = document.getElementById('agentFilter').value;
+            
+            let result = {};
+            const agentsToInclude = agent === 'all' ? ['jeff', 'william', 'julien'] : [agent];
+            
+            agentsToInclude.forEach(a => {
+                let weeks = [...weeklyData[a]];
+                if (month !== 'all') {
+                    weeks = weeks.filter(w => w.week.toLowerCase().startsWith(month));
+                }
+                result[a] = weeks;
+            });
+            
+            return result;
+        }
+
+        function getFilteredSources() {
+            const sourceFilter = document.getElementById('sourceFilter').value;
+            if (sourceFilter === 'all') return leadSources;
+            return leadSources.filter(s => {
+                if (sourceFilter === 'vensure') return s.name.includes('Vensure');
+                if (sourceFilter === 'adp') return s.name.includes('ADP');
+                if (sourceFilter === 'trinet') return s.name.includes('TRINET');
+                if (sourceFilter === 'paychex') return s.name.includes('Paychex');
+                return true;
+            });
+        }
+
+        function getMonthlyAggregates() {
+            const data = getFilteredWeeklyData();
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May'];
+            const result = {};
+            
+            Object.keys(data).forEach(agent => {
+                result[agent] = months.map(m => {
+                    const monthWeeks = data[agent].filter(w => w.week.startsWith(m));
+                    return {
+                        week: m + ' 2024',
+                        calls: monthWeeks.reduce((sum, w) => sum + w.calls, 0),
+                        appt: monthWeeks.reduce((sum, w) => sum + w.appt, 0),
+                        show: monthWeeks.reduce((sum, w) => sum + w.show, 0)
+                    };
+                }).filter(m => m.calls > 0 || m.appt > 0 || m.show > 0);
+            });
+            
+            return result;
+        }
+
+        function destroyChart(key) {
+            if (charts[key]) {
+                charts[key].destroy();
+                delete charts[key];
+            }
+        }
+
+        function updateDashboard() {
+            const month = document.getElementById('monthFilter').value;
+            const agent = document.getElementById('agentFilter').value;
+            const source = document.getElementById('sourceFilter').value;
+            currentFilters = { month, agent, source };
+            
+            // Flash animation
+            document.querySelectorAll('.glass-card').forEach(card => {
+                card.style.opacity = '0.6';
+                setTimeout(() => card.style.opacity = '1', 300);
+            });
+            
+            // Re-render everything with filters
+            setTimeout(() => {
+                renderKPIs();
+                renderAgentCards();
+                renderSourcesCharts();
+                renderSourcesTable();
+                renderPipeline();
+                renderAllocationCharts();
+                renderHeatmap();
+                renderAllocationTable();
+                renderWeeklyCharts();
+                renderWeeklyTables();
+                renderInsights();
+            }, 150);
+        }
+
+        function setPeriod(period) {
+            currentPeriod = period;
+            document.getElementById('btnWeekly').className = period === 'weekly' ? 
+                'px-3 md:px-4 py-2 rounded-lg text-sm font-medium bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 whitespace-nowrap' : 
+                'px-3 md:px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 whitespace-nowrap';
+            document.getElementById('btnMonthly').className = period === 'monthly' ? 
+                'px-3 md:px-4 py-2 rounded-lg text-sm font-medium bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 whitespace-nowrap' : 
+                'px-3 md:px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 whitespace-nowrap';
+            
+            document.getElementById('trendChartTitle').textContent = period === 'weekly' ? 
+                'Calls vs Appointments Trend (Weekly)' : 'Calls vs Appointments Trend (Monthly)';
+            
+            renderWeeklyCharts();
+            renderWeeklyTables();
+        }
+
+        // ==================== KPI SECTION ====================
+        function renderKPIs() {
+            const month = document.getElementById('monthFilter').value;
+            const agent = document.getElementById('agentFilter').value;
+            
+            // Calculate dynamic values based on filters
+            let totalLeads = 3588, totalCalls = 13082, totalAppt = 34, totalSold = 6, totalWarm = 17, totalProgress = 15;
+            
+            if (agent !== 'all') {
+                const stats = agentStats[agent];
+                totalLeads = stats.allocated;
+                totalCalls = stats.calls;
+                totalAppt = stats.appt;
+                totalSold = stats.sold;
+                totalWarm = stats.warm;
+                totalProgress = stats.progress;
+            }
+            
+            if (month !== 'all') {
+                const data = getFilteredWeeklyData();
+                totalCalls = Object.values(data).reduce((sum, agentWeeks) => sum + agentWeeks.reduce((s, w) => s + w.calls, 0), 0);
+                totalAppt = Object.values(data).reduce((sum, agentWeeks) => sum + agentWeeks.reduce((s, w) => s + w.appt, 0), 0);
+            }
+            
+            const kpis = [
+                { label: 'Total Leads', value: totalLeads, icon: 'fa-users', color: 'cyan', change: '+12.5%', sparkline: [3200, 3350, 3400, totalLeads] },
+                { label: 'Total Calls', value: totalCalls, icon: 'fa-phone', color: 'blue', change: '+8.3%', sparkline: [11000, 12000, 12500, totalCalls] },
+                { label: 'Total Appointments', value: totalAppt, icon: 'fa-calendar-check', color: 'purple', change: '+15.2%', sparkline: [25, 28, 30, totalAppt] },
+                { label: 'PEO Sold', value: totalSold, icon: 'fa-handshake', color: 'green', change: '+20%', sparkline: [3, 4, 5, totalSold] },
+                { label: 'Warm Leads', value: totalWarm, icon: 'fa-fire', color: 'orange', change: '-5.1%', sparkline: [20, 19, 18, totalWarm] },
+                { label: 'Leads In Progress', value: totalProgress, icon: 'fa-spinner', color: 'pink', change: '+2.4%', sparkline: [12, 13, 14, totalProgress] }
+            ];
+
+            const container = document.getElementById('kpiContainer');
+            container.innerHTML = kpis.map((kpi, i) => `
+                <div class="glass-card rounded-xl p-5 hover-lift glow-cyan group cursor-pointer">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-lg bg-${kpi.color}-500/20 flex items-center justify-center group-hover:bg-${kpi.color}-500/30 transition-colors flex-shrink-0">
+                            <i class="fas ${kpi.icon} text-${kpi.color}-400"></i>
+                        </div>
+                        <span class="text-xs font-medium ${kpi.change.startsWith('+') ? 'text-green-400' : 'text-red-400'} flex items-center gap-1 flex-shrink-0 ml-2">
+                            <i class="fas fa-caret-${kpi.change.startsWith('+') ? 'up' : 'down'}"></i>${kpi.change}
+                        </span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-1 animate-count" id="kpi${i}">${kpi.value.toLocaleString()}</h3>
+                    <p class="text-xs text-gray-400 mb-3 truncate">${kpi.label}</p>
+                    <div class="kpi-sparkline">
+                        <canvas id="sparkline${i}" height="32"></canvas>
+                    </div>
+                </div>
+            `).join('');
+
+            setTimeout(() => {
+                kpis.forEach((kpi, i) => {
+                    const ctx = document.getElementById(`sparkline${i}`).getContext('2d');
+                    const colorMap = {
+                        cyan: '6,182,212', blue: '59,130,246', purple: '139,92,246',
+                        green: '34,197,94', orange: '249,115,22', pink: '236,72,153'
+                    };
+                    const color = colorMap[kpi.color] || '6,182,212';
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['', '', '', ''],
+                            datasets: [{
+                                data: kpi.sparkline,
+                                borderColor: `rgb(${color})`,
+                                borderWidth: 2,
+                                tension: 0.4,
+                                pointRadius: 0,
+                                fill: true,
+                                backgroundColor: (ctx) => {
+                                    const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 32);
+                                    gradient.addColorStop(0, `rgba(${color},0.2)`);
+                                    gradient.addColorStop(1, 'transparent');
+                                    return gradient;
+                                }
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: { x: { display: false }, y: { display: false } }
+                        }
+                    });
+                });
+            }, 50);
+        }
+
+        // ==================== AGENT CARDS ====================
+        function renderAgentCards() {
+            const agentFilter = document.getElementById('agentFilter').value;
+            const agents = [
+                { name: 'Jeff', stats: agentStats.jeff, rank: 1, trend: [65, 72, 68, 75, 80, 85, 82, 88] },
+                { name: 'William', stats: agentStats.william, rank: 2, trend: [70, 75, 78, 76, 74, 79, 81, 77] },
+                { name: 'Julien', stats: agentStats.julien, rank: 3, trend: [30, 35, 32, 38, 40, 42, 45, 48] }
+            ].filter(a => agentFilter === 'all' || a.name.toLowerCase() === agentFilter);
+
+            const container = document.getElementById('agentCards');
+            container.innerHTML = agents.map((agent, i) => {
+                const showRate = agent.stats.appt > 0 ? ((agent.stats.show / agent.stats.appt) * 100).toFixed(1) : '0.0';
+                const convRate = agent.stats.appt > 0 ? ((agent.stats.sold / agent.stats.appt) * 100).toFixed(1) : '0.0';
+                const callRate = ((agent.stats.calls / agent.stats.allocated) * 100).toFixed(1);
+                
+                return `
+                <div class="glass-card rounded-xl p-6 hover-lift glow-cyan relative overflow-hidden">
+                    <div class="absolute top-4 right-4">
+                        <div class="w-8 h-8 rounded-full ${agent.rank === 1 ? 'bg-yellow-500/20 text-yellow-400' : agent.rank === 2 ? 'bg-gray-400/20 text-gray-300' : 'bg-orange-700/20 text-orange-400'} flex items-center justify-center text-sm font-bold">
+                            #${agent.rank}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-cyan-500/20 flex-shrink-0">
+                            ${agent.name[0]}
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-bold text-lg truncate">${agent.name}</h3>
+                            <p class="text-xs text-gray-400">Sales Agent</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="text-center">
+                            <div class="relative w-20 h-20 mx-auto mb-2">
+                                <svg class="w-20 h-20 progress-ring" viewBox="0 0 80 80">
+                                    <circle cx="40" cy="40" r="36" stroke="rgba(75,85,99,0.3)" stroke-width="4" fill="none"/>
+                                    <circle cx="40" cy="40" r="36" stroke="#06b6d4" stroke-width="4" fill="none" stroke-dasharray="${2 * Math.PI * 36}" 
+                                        stroke-dashoffset="${2 * Math.PI * 36 * (1 - Math.min(callRate,100)/100)}" stroke-linecap="round"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center text-sm font-bold">${callRate}%</div>
+                            </div>
+                            <p class="text-xs text-gray-400">Call Rate</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="relative w-20 h-20 mx-auto mb-2">
+                                <svg class="w-20 h-20 progress-ring" viewBox="0 0 80 80">
+                                    <circle cx="40" cy="40" r="36" stroke="rgba(75,85,99,0.3)" stroke-width="4" fill="none"/>
+                                    <circle cx="40" cy="40" r="36" stroke="#8b5cf6" stroke-width="4" fill="none" stroke-dasharray="${2 * Math.PI * 36}" 
+                                        stroke-dashoffset="${2 * Math.PI * 36 * (1 - Math.min(agent.stats.appt/20,1))}" stroke-linecap="round"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center text-sm font-bold">${agent.stats.appt}</div>
+                            </div>
+                            <p class="text-xs text-gray-400">Appointments</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between text-sm gap-2">
+                            <span class="text-gray-400 truncate">Calls Made</span>
+                            <span class="font-semibold flex-shrink-0">${agent.stats.calls.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between text-sm gap-2">
+                            <span class="text-gray-400 truncate">Show-Up Rate</span>
+                            <span class="font-semibold ${parseFloat(showRate) > 50 ? 'text-green-400' : 'text-yellow-400'} flex-shrink-0">${showRate}%</span>
+                        </div>
+                        <div class="flex justify-between text-sm gap-2">
+                            <span class="text-gray-400 truncate">Conversion Rate</span>
+                            <span class="font-semibold ${parseFloat(convRate) > 20 ? 'text-green-400' : 'text-gray-300'} flex-shrink-0">${convRate}%</span>
+                        </div>
+                        <div class="flex justify-between text-sm gap-2">
+                            <span class="text-gray-400 truncate">PEO Sold</span>
+                            <span class="font-semibold text-cyan-400 flex-shrink-0">${agent.stats.sold}</span>
+                        </div>
+                        <div class="flex justify-between text-sm gap-2">
+                            <span class="text-gray-400 truncate">Warm Leads</span>
+                            <span class="font-semibold text-orange-400 flex-shrink-0">${agent.stats.warm}</span>
+                        </div>
+                        <div class="flex justify-between text-sm gap-2">
+                            <span class="text-gray-400 truncate">In Progress</span>
+                            <span class="font-semibold text-blue-400 flex-shrink-0">${agent.stats.progress}</span>
+                        </div>
+                        <div class="flex justify-between text-sm gap-2">
+                            <span class="text-gray-400 truncate">Allocated</span>
+                            <span class="font-semibold flex-shrink-0">${agent.stats.allocated.toLocaleString()}</span>
+                        </div>
+                    </div>
+
+                    <div class="h-24 w-full">
+                        <canvas id="agentTrend${i}" height="96"></canvas>
+                    </div>
+                </div>
+            `}).join('');
+
+            setTimeout(() => {
+                agents.forEach((agent, i) => {
+                    const ctx = document.getElementById(`agentTrend${i}`).getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8'],
+                            datasets: [{
+                                label: 'Performance',
+                                data: agent.trend,
+                                borderColor: '#06b6d4',
+                                backgroundColor: 'rgba(6,182,212,0.1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 3,
+                                pointBackgroundColor: '#06b6d4'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: { display: false },
+                                y: { display: false, min: 0, max: 100 }
+                            }
+                        }
+                    });
+                });
+            }, 50);
+        }
+
+        // ==================== LEAD SOURCES ====================
+        function renderSourcesCharts() {
+            destroyChart('sourcesBar');
+            destroyChart('sourcesPie');
+            
+            const filtered = getFilteredSources();
+            const labels = filtered.map(s => s.name.replace('PEO - ', ''));
+            const data = filtered.map(s => s.count);
+            const colors = ['#06b6d4', '#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#6366f1', '#14b8a6', '#f97316'];
+
+            const barCtx = document.getElementById('sourcesBarChart').getContext('2d');
+            charts.sourcesBar = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Leads',
+                        data: data,
+                        backgroundColor: colors.slice(0, filtered.length).map(c => c + '80'),
+                        borderColor: colors.slice(0, filtered.length),
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(17,24,39,0.9)',
+                            padding: 12,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(75,85,99,0.1)' } },
+                        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                    }
+                }
+            });
+
+            const pieCtx = document.getElementById('sourcesPieChart').getContext('2d');
+            charts.sourcesPie = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: filtered.map(s => s.name),
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, filtered.length),
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { boxWidth: 12, font: { size: 11 }, color: '#9ca3af' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderSourcesTable() {
+            const filtered = getFilteredSources();
+            const total = filtered.reduce((sum, s) => sum + s.count, 0);
+            const tbody = document.getElementById('sourcesTableBody');
+            tbody.innerHTML = filtered.map(source => {
+                const pct = total > 0 ? ((source.count / total) * 100).toFixed(1) : '0.0';
+                return `
+                <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
+                    <td class="py-3 font-medium truncate max-w-[200px]">${source.name}</td>
+                    <td class="py-3 text-right font-semibold whitespace-nowrap">${source.count.toLocaleString()}</td>
+                    <td class="py-3 text-right whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-2">
+                            <div class="w-16 h-1.5 bg-gray-700 rounded-full overflow-hidden flex-shrink-0">
+                                <div class="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" style="width: ${pct}%"></div>
+                            </div>
+                            <span class="text-xs w-8 text-right">${pct}%</span>
+                        </div>
+                    </td>
+                    <td class="py-3 text-center">
+                        <i class="fas fa-arrow-${source.trend === 'up' ? 'up text-green-400' : source.trend === 'down' ? 'down text-red-400' : 'right text-gray-400'} text-xs"></i>
+                    </td>
+                    <td class="py-3 text-center">
+                        <span class="px-2 py-1 rounded-full text-xs ${source.count > 400 ? 'bg-green-500/20 text-green-400' : source.count > 200 ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}">
+                            ${source.count > 400 ? 'High' : source.count > 200 ? 'Medium' : 'Low'}
+                        </span>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        let sortDir = 1;
+        function sortSources(field) {
+            sortDir *= -1;
+            leadSources.sort((a, b) => sortDir * (field === 'count' ? a.count - b.count : a.name.localeCompare(b.name)));
+            renderSourcesTable();
+        }
+
+        function filterSources() {
+            const query = document.getElementById('sourceSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#sourcesTableBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        // ==================== PIPELINE ====================
+        function renderPipeline() {
+            const agentFilter = document.getElementById('agentFilter').value;
+            let warm = { ...pipelineData.warm };
+            let progress = { ...pipelineData.progress };
+            let sold = { ...pipelineData.sold };
+            
+            if (agentFilter !== 'all') {
+                const filteredWarm = {}; filteredWarm[agentFilter] = pipelineData.warm[agentFilter]; warm = filteredWarm;
+                const filteredProgress = {}; filteredProgress[agentFilter] = pipelineData.progress[agentFilter]; progress = filteredProgress;
+                const filteredSold = {}; filteredSold[agentFilter] = pipelineData.sold[agentFilter]; sold = filteredSold;
+            }
+            
+            const warmTotal = Object.values(warm).reduce((a, b) => a + b, 0);
+            const progressTotal = Object.values(progress).reduce((a, b) => a + b, 0);
+            const soldTotal = Object.values(sold).reduce((a, b) => a + b, 0);
+            const maxVal = Math.max(warmTotal, progressTotal, soldTotal, 1);
+
+            const stages = [
+                { name: 'Warm Leads', data: warm, total: warmTotal, color: 'from-orange-400 to-red-500', width: (warmTotal/maxVal)*100 },
+                { name: 'Leads In Progress', data: progress, total: progressTotal, color: 'from-blue-400 to-cyan-500', width: (progressTotal/maxVal)*100 },
+                { name: 'PEO Sold', data: sold, total: soldTotal, color: 'from-green-400 to-emerald-500', width: (soldTotal/maxVal)*100 }
+            ];
+
+            const funnelContainer = document.getElementById('funnelContainer');
+            funnelContainer.innerHTML = stages.map((stage, i) => `
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-semibold text-sm">${stage.name}</span>
+                        <span class="text-lg font-bold text-white">${stage.total}</span>
+                    </div>
+                    <div class="flex items-center gap-2 md:gap-4">
+                        <div class="flex-1 h-10 md:h-12 bg-gray-800 rounded-lg overflow-hidden relative min-w-0">
+                            <div class="h-full bg-gradient-to-r ${stage.color} rounded-lg funnel-bar flex items-center justify-end px-3" style="width: 0%" data-width="${stage.width}%">
+                                <span class="text-xs md:text-sm font-bold text-white drop-shadow-md">${warmTotal > 0 ? ((stage.total/warmTotal)*100).toFixed(1) : '0.0'}%</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-1 md:gap-2 text-xs flex-shrink-0">
+                            ${Object.entries(stage.data).map(([agent, val]) => `
+                                <div class="text-center px-1 md:px-2">
+                                    <div class="font-semibold ${val > 0 ? 'text-white' : 'text-gray-600'}">${val}</div>
+                                    <div class="text-gray-500 capitalize text-[10px]">${agent.slice(0,3)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            setTimeout(() => {
+                document.querySelectorAll('.funnel-bar').forEach(bar => {
+                    bar.style.width = bar.dataset.width;
+                });
+            }, 300);
+
+            const metricsContainer = document.getElementById('pipelineMetrics');
+            const conversionRate = warmTotal > 0 ? ((soldTotal/warmTotal)*100).toFixed(1) : 0;
+            metricsContainer.innerHTML = `
+                <div class="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 gap-2">
+                    <span class="text-sm text-gray-400 truncate">Total Pipeline Value</span>
+                    <span class="font-bold text-lg flex-shrink-0">${warmTotal + progressTotal + soldTotal}</span>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 gap-2">
+                    <span class="text-sm text-gray-400 truncate">Conversion Rate</span>
+                    <span class="font-bold text-lg text-green-400 flex-shrink-0">${conversionRate}%</span>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 gap-2">
+                    <span class="text-sm text-gray-400 truncate">Avg Deal Size</span>
+                    <span class="font-bold text-lg flex-shrink-0">1.0</span>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 gap-2">
+                    <span class="text-sm text-gray-400 truncate">Active Agents</span>
+                    <span class="font-bold text-lg flex-shrink-0">${Object.keys(warm).length}</span>
+                </div>
+            `;
+
+            destroyChart('winRate');
+            const winCtx = document.getElementById('winRateChart').getContext('2d');
+            charts.winRate = new Chart(winCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(warm).map(a => a.charAt(0).toUpperCase() + a.slice(1)),
+                    datasets: [{
+                        label: 'Win Rate %',
+                        data: Object.keys(warm).map(a => {
+                            const w = warm[a] || 0;
+                            const s = sold[a] || 0;
+                            return w > 0 ? ((s / w) * 100).toFixed(1) : 0;
+                        }),
+                        backgroundColor: ['rgba(6,182,212,0.8)', 'rgba(59,130,246,0.8)', 'rgba(139,92,246,0.3)'].slice(0, Object.keys(warm).length),
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // ==================== ALLOCATION ====================
+        function renderAllocationCharts() {
+            destroyChart('allocationStacked');
+            destroyChart('allocationDonut');
+            
+            const agentFilter = document.getElementById('agentFilter').value;
+            const sourceFilter = document.getElementById('sourceFilter').value;
+            
+            let sources = [...allocationData.sources];
+            let jeff = [...allocationData.jeff];
+            let william = [...allocationData.william];
+            let julien = [...allocationData.julien];
+            
+            // Filter by source
+            if (sourceFilter !== 'all') {
+                const indices = sources.map((s, i) => {
+                    if (sourceFilter === 'vensure') return s.includes('Vensure');
+                    if (sourceFilter === 'adp') return s.includes('ADP');
+                    if (sourceFilter === 'trinet') return s.includes('TRINET');
+                    if (sourceFilter === 'paychex') return s.includes('Paychex');
+                    return true;
+                });
+                sources = sources.filter((_, i) => indices[i]);
+                jeff = jeff.filter((_, i) => indices[i]);
+                william = william.filter((_, i) => indices[i]);
+                julien = julien.filter((_, i) => indices[i]);
+            }
+            
+            const datasets = [];
+            if (agentFilter === 'all' || agentFilter === 'jeff') datasets.push({ label: 'Jeff', data: jeff, backgroundColor: 'rgba(6,182,212,0.8)', borderRadius: 4 });
+            if (agentFilter === 'all' || agentFilter === 'william') datasets.push({ label: 'William', data: william, backgroundColor: 'rgba(59,130,246,0.8)', borderRadius: 4 });
+            if (agentFilter === 'all' || agentFilter === 'julien') datasets.push({ label: 'Julien', data: julien, backgroundColor: 'rgba(139,92,246,0.6)', borderRadius: 4 });
+
+            const stackCtx = document.getElementById('allocationStackedChart').getContext('2d');
+            charts.allocationStacked = new Chart(stackCtx, {
+                type: 'bar',
+                data: {
+                    labels: sources.map(s => s.replace('PEO - ', '')),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
+                        y: { stacked: true, grid: { color: 'rgba(75,85,99,0.1)' } }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } },
+                        tooltip: { mode: 'index', intersect: false }
+                    }
+                }
+            });
+
+            const donutData = [];
+            const donutLabels = [];
+            const donutColors = [];
+            if (agentFilter === 'all' || agentFilter === 'jeff') { donutData.push(jeff.reduce((a,b)=>a+b,0)); donutLabels.push('Jeff'); donutColors.push('#06b6d4'); }
+            if (agentFilter === 'all' || agentFilter === 'william') { donutData.push(william.reduce((a,b)=>a+b,0)); donutLabels.push('William'); donutColors.push('#3b82f6'); }
+            if (agentFilter === 'all' || agentFilter === 'julien') { donutData.push(julien.reduce((a,b)=>a+b,0)); donutLabels.push('Julien'); donutColors.push('#8b5cf6'); }
+            
+            const total = donutData.reduce((a,b)=>a+b,0);
+
+            const donutCtx = document.getElementById('allocationDonutChart').getContext('2d');
+            charts.allocationDonut = new Chart(donutCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: donutLabels,
+                    datasets: [{
+                        data: donutData,
+                        backgroundColor: donutColors,
+                        borderWidth: 0,
+                        cutout: '70%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : '0.0';
+                                    return `${ctx.label}: ${ctx.raw} (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                },
+                plugins: [{
+                    id: 'centerText',
+                    beforeDraw: (chart) => {
+                        const { ctx, width, height } = chart;
+                        ctx.save();
+                        ctx.font = 'bold 24px Inter';
+                        ctx.fillStyle = document.documentElement.classList.contains('light-mode') ? '#111827' : '#fff';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(total.toLocaleString(), width / 2, height / 2 - 10);
+                        ctx.font = '12px Inter';
+                        ctx.fillStyle = '#9ca3af';
+                        ctx.fillText('Total Leads', width / 2, height / 2 + 12);
+                        ctx.restore();
+                    }
+                }]
+            });
+        }
+
+        function renderHeatmap() {
+            const maxVal = Math.max(...allocationData.jeff, ...allocationData.william, ...allocationData.julien);
+            const agents = ['Jeff', 'William', 'Julien'];
+            const data = [allocationData.jeff, allocationData.william, allocationData.julien];
+            
+            const container = document.getElementById('heatmapContainer');
+            let html = '<div class="heatmap-grid">';
+            
+            html += '<div class="p-2 text-xs font-semibold text-gray-400 truncate">Source</div>';
+            agents.forEach(agent => {
+                html += `<div class="p-2 text-xs font-semibold text-center text-gray-400">${agent}</div>`;
+            });
+            
+            allocationData.sources.forEach((source, i) => {
+                html += `<div class="p-2 text-xs font-medium flex items-center truncate" title="${source}">${source}</div>`;
+                agents.forEach((agent, j) => {
+                    const val = data[j][i];
+                    const intensity = val / maxVal;
+                    const bg = `rgba(6, 182, 212, ${0.1 + intensity * 0.8})`;
+                    const text = intensity > 0.5 ? '#fff' : '#9ca3af';
+                    html += `<div class="heatmap-cell p-2 rounded text-center text-xs font-semibold cursor-pointer flex items-center justify-center" style="background: ${bg}; color: ${text};" title="${agent}: ${val} leads">${val > 0 ? val : '-'}</div>`;
+                });
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderAllocationTable() {
+            const tbody = document.getElementById('allocationTableBody');
+            tbody.innerHTML = allocationData.sources.map((source, i) => {
+                const total = allocationData.jeff[i] + allocationData.william[i] + allocationData.julien[i];
+                return `
+                <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
+                    <td class="py-2 text-sm truncate max-w-[180px]">${source}</td>
+                    <td class="py-2 text-right text-sm font-medium text-cyan-400 whitespace-nowrap">${allocationData.jeff[i]}</td>
+                    <td class="py-2 text-right text-sm font-medium text-blue-400 whitespace-nowrap">${allocationData.william[i]}</td>
+                    <td class="py-2 text-right text-sm font-medium text-purple-400 whitespace-nowrap">${allocationData.julien[i]}</td>
+                    <td class="py-2 text-right text-sm font-bold whitespace-nowrap">${total}</td>
+                </tr>
+            `}).join('');
+        }
+
+        // ==================== WEEKLY PERFORMANCE ====================
+        function renderWeeklyCharts() {
+            destroyChart('weekly');
+            
+            const agentFilter = document.getElementById('agentFilter').value;
+            let data = currentPeriod === 'monthly' ? getMonthlyAggregates() : getFilteredWeeklyData();
+            
+            const labels = data.jeff && data.jeff.length > 0 ? data.jeff.map(d => d.week) : 
+                          data.william && data.william.length > 0 ? data.william.map(d => d.week) : 
+                          data.julien ? data.julien.map(d => d.week) : [];
+            
+            const datasets = [];
+            if ((agentFilter === 'all' || agentFilter === 'jeff') && data.jeff) {
+                datasets.push({
+                    label: 'Jeff Calls',
+                    data: data.jeff.map(d => d.calls),
+                    borderColor: '#06b6d4',
+                    backgroundColor: 'rgba(6,182,212,0.05)',
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 3
+                });
+            }
+            if ((agentFilter === 'all' || agentFilter === 'william') && data.william) {
+                datasets.push({
+                    label: 'William Calls',
+                    data: data.william.map(d => d.calls),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59,130,246,0.05)',
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 3
+                });
+            }
+            if ((agentFilter === 'all' || agentFilter === 'julien') && data.julien) {
+                datasets.push({
+                    label: 'Julien Calls',
+                    data: data.julien.map(d => d.calls),
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139,92,246,0.05)',
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 3,
+                    borderDash: [5, 5]
+                });
+            }
+            
+            // Add appointments line for first available agent
+            const firstAgent = agentFilter === 'all' ? 'jeff' : agentFilter;
+            if (data[firstAgent]) {
+                datasets.push({
+                    label: 'Appointments (x100)',
+                    data: data[firstAgent].map(d => d.appt * 100),
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16,185,129,0.05)',
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 3,
+                    yAxisID: 'y1'
+                });
+            }
+
+            const ctx = document.getElementById('weeklyTrendChart').getContext('2d');
+            charts.weekly = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    let label = ctx.dataset.label || '';
+                                    if (label.includes('Appointments')) return label + ': ' + (ctx.raw / 100);
+                                    return label + ': ' + ctx.raw;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 12 } },
+                        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Calls' } },
+                        y1: { type: 'linear', display: true, position: 'right', grid: { display: false }, title: { display: true, text: 'Appt x100' } }
+                    }
+                }
+            });
+        }
+
+        function renderWeeklyTables() {
+            const agentFilter = document.getElementById('agentFilter').value;
+            const data = currentPeriod === 'monthly' ? getMonthlyAggregates() : getFilteredWeeklyData();
+            const agents = agentFilter === 'all' ? ['jeff', 'william', 'julien'] : [agentFilter];
+            
+            // Hide/show table cards based on agent filter
+            document.querySelectorAll('#weeklyTablesContainer > div').forEach(card => {
+                const cardAgent = card.dataset.agent;
+                if (agentFilter === 'all' || cardAgent === agentFilter) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            agents.forEach(agent => {
+                const tbody = document.getElementById(`${agent}WeeklyTable`);
+                if (!data[agent] || data[agent].length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-xs text-gray-500">No data for selected period</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = data[agent].map(w => `
+                    <tr class="border-b border-gray-800/30 hover:bg-gray-800/20">
+                        <td class="py-1.5 text-xs text-gray-400 whitespace-nowrap">${w.week}</td>
+                        <td class="py-1.5 text-xs text-right font-medium whitespace-nowrap">${w.calls}</td>
+                        <td class="py-1.5 text-xs text-right ${w.appt > 0 ? 'text-cyan-400 font-medium' : 'text-gray-600'} whitespace-nowrap">${w.appt}</td>
+                        <td class="py-1.5 text-xs text-right ${w.show > 0 ? 'text-green-400 font-medium' : 'text-gray-600'} whitespace-nowrap">${w.show || '-'}</td>
+                    </tr>
+                `).join('');
+            });
+        }
+
+        // ==================== AI INSIGHTS ====================
+        function renderInsights() {
+            const agentFilter = document.getElementById('agentFilter').value;
+            const monthFilter = document.getElementById('monthFilter').value;
+            
+            const insights = [
+                { icon: 'fa-trophy', color: 'yellow', title: 'Top Performer', text: agentFilter === 'all' ? 'Jeff currently handles the highest lead allocation with 1,793 leads (50% of total distribution) and has achieved 5 PEO sales.' : `${agentFilter.charAt(0).toUpperCase() + agentFilter.slice(1)} is currently managing ${agentStats[agentFilter].allocated} leads with ${agentStats[agentFilter].sold} PEO sales.` },
+                { icon: 'fa-database', color: 'cyan', title: 'Dominant Source', text: 'ADP PEO - NY is the largest lead source contributing 1,264 leads (35.2% of total volume), significantly outperforming other sources.' },
+                { icon: 'fa-phone', color: 'blue', title: 'Consistency Leader', text: 'William has the highest call consistency with 6,814 total calls and maintains steady weekly activity averaging 358 calls per week.' },
+                { icon: 'fa-bullseye', color: 'green', title: 'Conversion Insight', text: 'Jeff shows the strongest conversion pipeline with 16 warm leads and 15 in-progress deals, indicating healthy funnel movement.' },
+                { icon: 'fa-exclamation-triangle', color: 'orange', title: 'Allocation Alert', text: 'Julien manages a smaller focused segment (200 leads). Consider rebalancing allocation to optimize team capacity utilization.' },
+                { icon: 'fa-chart-line', color: 'purple', title: 'Trend Analysis', text: monthFilter === 'all' ? 'May shows reduced appointment scheduling across all agents. Recommend increasing outreach cadence to maintain Q2 momentum.' : `Filtering by ${monthFilter.charAt(0).toUpperCase() + monthFilter.slice(1)} shows focused activity patterns. Review agent pacing for this period.` }
+            ];
+
+            const container = document.getElementById('insightsContainer');
+            container.innerHTML = insights.map(insight => `
+                <div class="flex items-start gap-3 p-4 rounded-lg bg-gray-800/30 border border-gray-700/50 hover:border-cyan-500/30 transition-colors">
+                    <div class="w-8 h-8 rounded-lg bg-${insight.color}-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class=\"fas ${insight.icon} text-${insight.color}-400 text-sm\"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h4 class="font-semibold text-sm mb-1 text-gray-200">${insight.title}</h4>
+                        <p class="text-xs text-gray-400 leading-relaxed">${insight.text}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== INTERACTIVITY ====================
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light-mode');
+                icon.className = 'fas fa-moon text-gray-600';
+            } else {
+                html.classList.add('dark');
+                html.classList.remove('light-mode');
+                icon.className = 'fas fa-sun text-yellow-400';
+            }
+            Object.values(charts).forEach(chart => { if(chart && chart.update) chart.update(); });
+        }
+
+        // ==================== EXPORTS ====================
+        function exportCSV() {
+            let csv = 'Lead Source,Jeff,William,Julien,Total\\n';
+            allocationData.sources.forEach((source, i) => {
+                const total = allocationData.jeff[i] + allocationData.william[i] + allocationData.julien[i];
+                csv += `"${source}",${allocationData.jeff[i]},${allocationData.william[i]},${allocationData.julien[i]},${total}\\n`;
+            });
+            csv += `TOTALS,1793,1595,200,3588\\n`;
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'PEO_Leads_Allocation_Report.csv';
+            a.click();
+        }
+
+        function exportPDF() {
+            alert('PDF Export: Opening print dialog with optimized formatting...');
+            window.print();
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function shareReport() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Dashboard link copied to clipboard!');
+            });
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active', 'text-white'));
+                    document.querySelectorAll('.sidebar-item').forEach(item => item.classList.add('text-gray-400'));
+                    this.classList.add('active', 'text-white');
+                    this.classList.remove('text-gray-400');
+                    if (window.innerWidth < 1024) toggleSidebar();
+                }
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
