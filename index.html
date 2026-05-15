@@ -61,6 +61,7 @@
         .kpi-sparkline { height: 32px; width: 100%; }
         .hidden-section { display: none !important; }
     </style>
+<base target="_blank">
 </head>
 <body class="bg-dark-900 text-gray-100 font-sans antialiased">
 
@@ -485,25 +486,25 @@
                 { week: 'May 11-15', calls: 424, appt: 0, show: 0 }
             ],
             william: [
-                { week: 'Jan 5-9', calls: 519, appt: 2, show: 1 },
-                { week: 'Jan 12-16', calls: 516, appt: 0, show: 0 },
-                { week: 'Jan 19-23', calls: 499, appt: 0, show: 0 },
-                { week: 'Jan 26-30', calls: 435, appt: 0, show: 1 },
-                { week: 'Feb 2-6', calls: 469, appt: 1, show: 0 },
-                { week: 'Feb 9-14', calls: 360, appt: 2, show: 2 },
-                { week: 'Feb 16-20', calls: 301, appt: 1, show: 1 },
-                { week: 'Feb 23-27', calls: 482, appt: 0, show: 0 },
-                { week: 'Mar 2-6', calls: 376, appt: 2, show: 0 },
-                { week: 'Mar 9-13', calls: 297, appt: 0, show: 0 },
-                { week: 'Mar 16-20', calls: 290, appt: 2, show: 0 },
-                { week: 'Mar 23-27', calls: 430, appt: 0, show: 0 },
-                { week: 'Mar 30-Apr 4', calls: 74, appt: 0, show: 0 },
-                { week: 'Apr 6-10', calls: 473, appt: 0, show: 0 },
-                { week: 'Apr 13-17', calls: 258, appt: 1, show: 1 },
-                { week: 'Apr 20-24', calls: 438, appt: 0, show: 0 },
-                { week: 'Apr 27-May 1', calls: 402, appt: 0, show: 0 },
-                { week: 'May 4-8', calls: 325, appt: 0, show: 0 },
-                { week: 'May 11-15', calls: 240, appt: 0, show: 0 }
+                { week: 'Jan 5-9', calls: 260, appt: 2, show: 1 },
+                { week: 'Jan 12-16', calls: 258, appt: 0, show: 0 },
+                { week: 'Jan 19-23', calls: 250, appt: 0, show: 0 },
+                { week: 'Jan 26-30', calls: 218, appt: 0, show: 1 },
+                { week: 'Feb 2-6', calls: 235, appt: 1, show: 0 },
+                { week: 'Feb 9-14', calls: 180, appt: 2, show: 2 },
+                { week: 'Feb 16-20', calls: 451, appt: 1, show: 1 },
+                { week: 'Feb 23-27', calls: 241, appt: 0, show: 0 },
+                { week: 'Mar 2-6', calls: 188, appt: 2, show: 0 },
+                { week: 'Mar 9-13', calls: 149, appt: 0, show: 0 },
+                { week: 'Mar 16-20', calls: 145, appt: 2, show: 0 },
+                { week: 'Mar 23-27', calls: 215, appt: 0, show: 0 },
+                { week: 'Mar 30-Apr 4', calls: 37, appt: 0, show: 0 },
+                { week: 'Apr 6-10', calls: 236, appt: 0, show: 0 },
+                { week: 'Apr 13-17', calls: 129, appt: 1, show: 1 },
+                { week: 'Apr 20-24', calls: 219, appt: 0, show: 0 },
+                { week: 'Apr 27-May 1', calls: 201, appt: 0, show: 0 },
+                { week: 'May 4-8', calls: 163, appt: 0, show: 0 },
+                { week: 'May 11-15', calls: 120, appt: 0, show: 0 }
             ],
             julien: [
                 { week: 'Jan 5-9', calls: 400, appt: 0, show: 0 },
@@ -521,7 +522,7 @@
 
         const agentStats = {
             jeff: { calls: 5063, appt: 18, show: 10, sold: 5, warm: 16, progress: 15, allocated: 1793 },
-            william: { calls: 6814, appt: 11, show: 6, sold: 1, warm: 1, progress: 0, allocated: 1595 },
+            william: { calls: 3895, appt: 11, show: 6, sold: 1, warm: 1, progress: 0, allocated: 1595 },
             julien: { calls: 1205, appt: 5, show: 1, sold: 0, warm: 0, progress: 0, allocated: 200 }
         };
 
@@ -1371,7 +1372,7 @@
             const insights = [
                 { icon: 'fa-trophy', color: 'yellow', title: 'Top Performer', text: agentFilter === 'all' ? 'Jeff currently handles the highest lead allocation with 1,793 leads (50% of total distribution) and has achieved 5 PEO sales.' : `${agentFilter.charAt(0).toUpperCase() + agentFilter.slice(1)} is currently managing ${agentStats[agentFilter].allocated} leads with ${agentStats[agentFilter].sold} PEO sales.` },
                 { icon: 'fa-database', color: 'cyan', title: 'Dominant Source', text: 'ADP PEO - NY is the largest lead source contributing 1,264 leads (35.2% of total volume), significantly outperforming other sources.' },
-                { icon: 'fa-phone', color: 'blue', title: 'Consistency Leader', text: 'William has the highest call consistency with 6,814 total calls and maintains steady weekly activity averaging 358 calls per week.' },
+                { icon: 'fa-phone', color: 'blue', title: 'Consistency Leader', text: 'William has demonstrated strong call consistency with 3,895 total calls, maintaining steady weekly outreach activity across the reporting period.' },
                 { icon: 'fa-bullseye', color: 'green', title: 'Conversion Insight', text: 'Jeff shows the strongest conversion pipeline with 16 warm leads and 15 in-progress deals, indicating healthy funnel movement.' },
                 { icon: 'fa-exclamation-triangle', color: 'orange', title: 'Allocation Alert', text: 'Julien manages a smaller focused segment (200 leads). Consider rebalancing allocation to optimize team capacity utilization.' },
                 { icon: 'fa-chart-line', color: 'purple', title: 'Trend Analysis', text: monthFilter === 'all' ? 'May shows reduced appointment scheduling across all agents. Recommend increasing outreach cadence to maintain Q2 momentum.' : `Filtering by ${monthFilter.charAt(0).toUpperCase() + monthFilter.slice(1)} shows focused activity patterns. Review agent pacing for this period.` }
