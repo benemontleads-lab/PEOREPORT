@@ -521,9 +521,9 @@
         };
 
         const agentStats = {
-            jeff: { calls: 5314, appt: 19, show: 12, sold: 5, warm: 16, progress: 15, allocated: 1793 },
+            jeff: { calls: 5063, appt: 18, show: 10, sold: 5, warm: 16, progress: 15, allocated: 1793 },
             william: { calls: 3895, appt: 11, show: 6, sold: 1, warm: 1, progress: 0, allocated: 1595 },
-            julien: { calls: 1205, appt: 4, show: 1, sold: 0, warm: 0, progress: 0, allocated: 200 }
+            julien: { calls: 1205, appt: 5, show: 1, sold: 0, warm: 0, progress: 0, allocated: 200 }
         };
 
         // ==================== STATE ====================
@@ -590,7 +590,7 @@
                 result[agent] = months.map(m => {
                     const monthWeeks = data[agent].filter(w => w.week.startsWith(m));
                     return {
-                        week: m + ' 2024',
+                        week: m + ' 2026',
                         calls: monthWeeks.reduce((sum, w) => sum + w.calls, 0),
                         appt: monthWeeks.reduce((sum, w) => sum + w.appt, 0),
                         show: monthWeeks.reduce((sum, w) => sum + w.show, 0)
@@ -658,7 +658,7 @@
             const agent = document.getElementById('agentFilter').value;
             
             // Calculate dynamic values based on filters
-            let totalLeads = 3588, totalCalls = 10414, totalAppt = 34, totalSold = 6, totalWarm = 17, totalProgress = 15;
+            let totalLeads = 3588, totalCalls = 13082, totalAppt = 34, totalSold = 6, totalWarm = 17, totalProgress = 15;
             
             if (agent !== 'all') {
                 const stats = agentStats[agent];
@@ -678,7 +678,7 @@
             
             const kpis = [
                 { label: 'Total Leads', value: totalLeads, icon: 'fa-users', color: 'cyan', change: '+12.5%', sparkline: [3200, 3350, 3400, totalLeads] },
-                { label: 'Total Calls', value: totalCalls, icon: 'fa-phone', color: 'blue', change: '+8.3%', sparkline: [8800, 9500, 10100, totalCalls] },
+                { label: 'Total Calls', value: totalCalls, icon: 'fa-phone', color: 'blue', change: '+8.3%', sparkline: [11000, 12000, 12500, totalCalls] },
                 { label: 'Total Appointments', value: totalAppt, icon: 'fa-calendar-check', color: 'purple', change: '+15.2%', sparkline: [25, 28, 30, totalAppt] },
                 { label: 'PEO Sold', value: totalSold, icon: 'fa-handshake', color: 'green', change: '+20%', sparkline: [3, 4, 5, totalSold] },
                 { label: 'Warm Leads', value: totalWarm, icon: 'fa-fire', color: 'orange', change: '-5.1%', sparkline: [20, 19, 18, totalWarm] },
