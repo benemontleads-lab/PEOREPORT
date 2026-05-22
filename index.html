@@ -62,6 +62,7 @@
         .hidden-section { display: none !important; }
     </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body class="bg-dark-900 text-gray-100 font-sans antialiased">
 
@@ -319,8 +320,8 @@
                                     <td class="pt-3">TOTALS</td>
                                     <td class="pt-3 text-right" id="totalJeff">1,793</td>
                                     <td class="pt-3 text-right" id="totalWilliam">1,595</td>
-                                    <td class="pt-3 text-right" id="totalJulien">200</td>
-                                    <td class="pt-3 text-right" id="totalAll">3,588</td>
+                                    <td class="pt-3 text-right" id="totalJulien">454</td>
+                                    <td class="pt-3 text-right" id="totalAll">3,842</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -445,7 +446,7 @@
             { name: 'Vensure PEO - PA', count: 35, trend: 'stable' },
             { name: 'ADP PEO - NY', count: 1264, trend: 'up' },
             { name: 'ADP PEO - NJ', count: 401, trend: 'up' },
-            { name: 'TRINET PEO - NY', count: 233, trend: 'stable' },
+            { name: 'TRINET PEO - NY', count: 433, trend: 'stable' },
             { name: 'TRINET PEO - NJ', count: 53, trend: 'down' },
             { name: 'Paychex', count: 405, trend: 'up' }
         ];
@@ -454,12 +455,12 @@
             sources: ['Vensure PEO - FL', 'Vensure PEO - NY', 'Vensure PEO - GA', 'Vensure PEO - NJ', 'Vensure PEO - PA', 'ADP PEO - NY', 'ADP PEO - NJ', 'TRINET PEO - NY', 'TRINET PEO - NJ', 'Paychex'],
             jeff: [250, 300, 150, 0, 35, 500, 200, 100, 53, 205],
             william: [200, 180, 70, 47, 0, 564, 201, 133, 0, 200],
-            julien: [0, 0, 0, 0, 0, 200, 0, 0, 0, 0]
+            julien: [0, 0, 0, 0, 0, 454, 0, 0, 0, 0]
         };
 
         const pipelineData = {
-            warm: { jeff: 16, william: 1, julien: 0 },
-            progress: { jeff: 15, william: 0, julien: 0 },
+            warm: { jeff: 19, william: 8, julien: 0 },
+            progress: { jeff: 21, william: 5, julien: 1 },
             sold: { jeff: 5, william: 1, julien: 0 }
         };
 
@@ -483,7 +484,8 @@
                 { week: 'Apr 20-24', calls: 427, appt: 0, show: 0 },
                 { week: 'Apr 27-May 1', calls: 375, appt: 1, show: 0 },
                 { week: 'May 4-8', calls: 362, appt: 2, show: 2 },
-                { week: 'May 11-15', calls: 424, appt: 0, show: 0 }
+                { week: 'May 11-15', calls: 449, appt: 0, show: 0 },
+                { week: 'May 18-22', calls: 192, appt: 2, show: 1 }
             ],
             william: [
                 { week: 'Jan 5-9', calls: 260, appt: 2, show: 1 },
@@ -504,7 +506,8 @@
                 { week: 'Apr 20-24', calls: 219, appt: 0, show: 0 },
                 { week: 'Apr 27-May 1', calls: 201, appt: 0, show: 0 },
                 { week: 'May 4-8', calls: 163, appt: 0, show: 0 },
-                { week: 'May 11-15', calls: 120, appt: 0, show: 0 }
+                { week: 'May 11-15', calls: 308, appt: 1, show: 0 },
+                { week: 'May 18-22', calls: 65, appt: 1, show: 1 }
             ],
             julien: [
                 { week: 'Jan 5-9', calls: 400, appt: 0, show: 0 },
@@ -516,14 +519,15 @@
                 { week: 'Feb 23-27', calls: 33, appt: 1, show: 0 },
                 { week: 'Mar 2-6', calls: 63, appt: 1, show: 0 },
                 { week: 'Mar 30-Apr 4', calls: 15, appt: 0, show: 0 },
-                { week: 'Apr 13-17', calls: 102, appt: 0, show: 0 }
+                { week: 'Apr 13-17', calls: 102, appt: 0, show: 0 },
+                { week: 'May 18-22', calls: 239, appt: 1, show: 0 }
             ]
         };
 
         const agentStats = {
-            jeff: { calls: 5314, appt: 18, show: 10, sold: 5, warm: 16, progress: 15, allocated: 1793 },
-            william: { calls: 3895, appt: 11, show: 6, sold: 1, warm: 1, progress: 0, allocated: 1595 },
-            julien: { calls: 1205, appt: 5, show: 1, sold: 0, warm: 0, progress: 0, allocated: 200 }
+            jeff: { calls: 5531, appt: 21, show: 13, sold: 5, warm: 19, progress: 21, allocated: 1793 },
+            william: { calls: 4148, appt: 13, show: 7, sold: 1, warm: 8, progress: 5, allocated: 1595 },
+            julien: { calls: 1444, appt: 5, show: 1, sold: 0, warm: 0, progress: 1, allocated: 454 }
         };
 
         // ==================== STATE ====================
@@ -658,7 +662,7 @@
             const agent = document.getElementById('agentFilter').value;
             
             // Calculate dynamic values based on filters
-            let totalLeads = 3588, totalCalls = 10414, totalAppt = 34, totalSold = 6, totalWarm = 17, totalProgress = 15;
+            let totalLeads = 3686, totalCalls = 11123, totalAppt = 39, totalSold = 6, totalWarm = 27, totalProgress = 27;
             
             if (agent !== 'all') {
                 const stats = agentStats[agent];
@@ -1422,7 +1426,7 @@
                 const total = allocationData.jeff[i] + allocationData.william[i] + allocationData.julien[i];
                 csv += `"${source}",${allocationData.jeff[i]},${allocationData.william[i]},${allocationData.julien[i]},${total}\\n`;
             });
-            csv += `TOTALS,1793,1595,200,3588\\n`;
+            csv += `TOTALS,1793,1595,454,3842\\n`;
             
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
