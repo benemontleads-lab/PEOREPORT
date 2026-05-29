@@ -63,6 +63,7 @@
     </style>
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body class="bg-dark-900 text-gray-100 font-sans antialiased">
 
@@ -318,10 +319,10 @@
                             <tfoot>
                                 <tr class="border-t border-gray-700 font-semibold text-cyan-400">
                                     <td class="pt-3">TOTALS</td>
-                                    <td class="pt-3 text-right" id="totalJeff">1,793</td>
-                                    <td class="pt-3 text-right" id="totalWilliam">1,595</td>
+                                    <td class="pt-3 text-right" id="totalJeff">1,893</td>
+                                    <td class="pt-3 text-right" id="totalWilliam">1,695</td>
                                     <td class="pt-3 text-right" id="totalJulien">454</td>
-                                    <td class="pt-3 text-right" id="totalAll">3,842</td>
+                                    <td class="pt-3 text-right" id="totalAll">4,042</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -446,15 +447,15 @@
             { name: 'Vensure PEO - PA', count: 35, trend: 'stable' },
             { name: 'ADP PEO - NY', count: 1264, trend: 'up' },
             { name: 'ADP PEO - NJ', count: 401, trend: 'up' },
-            { name: 'TRINET PEO - NY', count: 433, trend: 'stable' },
+            { name: 'TRINET PEO - NY', count: 633, trend: 'up' },
             { name: 'TRINET PEO - NJ', count: 53, trend: 'down' },
             { name: 'Paychex', count: 405, trend: 'up' }
         ];
 
         const allocationData = {
             sources: ['Vensure PEO - FL', 'Vensure PEO - NY', 'Vensure PEO - GA', 'Vensure PEO - NJ', 'Vensure PEO - PA', 'ADP PEO - NY', 'ADP PEO - NJ', 'TRINET PEO - NY', 'TRINET PEO - NJ', 'Paychex'],
-            jeff: [250, 300, 150, 0, 35, 500, 200, 100, 53, 205],
-            william: [200, 180, 70, 47, 0, 564, 201, 133, 0, 200],
+            jeff: [250, 300, 150, 0, 35, 500, 200, 200, 53, 205],
+            william: [200, 180, 70, 47, 0, 564, 201, 233, 0, 200],
             julien: [0, 0, 0, 0, 0, 454, 0, 0, 0, 0]
         };
 
@@ -485,7 +486,8 @@
                 { week: 'Apr 27-May 1', calls: 375, appt: 1, show: 0 },
                 { week: 'May 4-8', calls: 362, appt: 2, show: 2 },
                 { week: 'May 11-15', calls: 449, appt: 0, show: 0 },
-                { week: 'May 18-22', calls: 192, appt: 2, show: 1 }
+                { week: 'May 18-22', calls: 192, appt: 2, show: 1 },
+                { week: 'May 25-29', calls: 299, appt: 0, show: 2 }
             ],
             william: [
                 { week: 'Jan 5-9', calls: 260, appt: 2, show: 1 },
@@ -507,7 +509,8 @@
                 { week: 'Apr 27-May 1', calls: 201, appt: 0, show: 0 },
                 { week: 'May 4-8', calls: 163, appt: 0, show: 0 },
                 { week: 'May 11-15', calls: 308, appt: 1, show: 0 },
-                { week: 'May 18-22', calls: 65, appt: 1, show: 1 }
+                { week: 'May 18-22', calls: 65, appt: 1, show: 1 },
+                { week: 'May 25-29', calls: 319, appt: 0, show: 0 }
             ],
             julien: [
                 { week: 'Jan 5-9', calls: 400, appt: 0, show: 0 },
@@ -520,14 +523,15 @@
                 { week: 'Mar 2-6', calls: 63, appt: 1, show: 0 },
                 { week: 'Mar 30-Apr 4', calls: 15, appt: 0, show: 0 },
                 { week: 'Apr 13-17', calls: 102, appt: 0, show: 0 },
-                { week: 'May 18-22', calls: 239, appt: 1, show: 0 }
+                { week: 'May 18-22', calls: 239, appt: 1, show: 0 },
+                { week: 'May 25-29', calls: 130, appt: 0, show: 0 }
             ]
         };
 
         const agentStats = {
-            jeff: { calls: 5531, appt: 21, show: 13, sold: 5, warm: 19, progress: 21, allocated: 1793 },
-            william: { calls: 4148, appt: 13, show: 7, sold: 1, warm: 8, progress: 5, allocated: 1595 },
-            julien: { calls: 1444, appt: 5, show: 1, sold: 0, warm: 0, progress: 1, allocated: 454 }
+            jeff: { calls: 5830, appt: 21, show: 15, sold: 5, warm: 19, progress: 21, allocated: 1893 },
+            william: { calls: 4467, appt: 13, show: 7, sold: 1, warm: 8, progress: 5, allocated: 1695 },
+            julien: { calls: 1574, appt: 5, show: 1, sold: 0, warm: 0, progress: 1, allocated: 454 }
         };
 
         // ==================== STATE ====================
@@ -662,7 +666,7 @@
             const agent = document.getElementById('agentFilter').value;
             
             // Calculate dynamic values based on filters
-            let totalLeads = 3686, totalCalls = 11123, totalAppt = 39, totalSold = 6, totalWarm = 27, totalProgress = 27;
+            let totalLeads = 3886, totalCalls = 11871, totalAppt = 39, totalSold = 6, totalWarm = 27, totalProgress = 27;
             
             if (agent !== 'all') {
                 const stats = agentStats[agent];
@@ -681,7 +685,7 @@
             }
             
             const kpis = [
-                { label: 'Total Leads', value: totalLeads, icon: 'fa-users', color: 'cyan', change: '+12.5%', sparkline: [3200, 3350, 3400, totalLeads] },
+                { label: 'Total Leads', value: totalLeads, icon: 'fa-users', color: 'cyan', change: '+12.5%', sparkline: [3200, 3500, 3700, totalLeads] },
                 { label: 'Total Calls', value: totalCalls, icon: 'fa-phone', color: 'blue', change: '+8.3%', sparkline: [11000, 12000, 12500, totalCalls] },
                 { label: 'Total Appointments', value: totalAppt, icon: 'fa-calendar-check', color: 'purple', change: '+15.2%', sparkline: [25, 28, 30, totalAppt] },
                 { label: 'PEO Sold', value: totalSold, icon: 'fa-handshake', color: 'green', change: '+20%', sparkline: [3, 4, 5, totalSold] },
@@ -1374,11 +1378,11 @@
             const monthFilter = document.getElementById('monthFilter').value;
             
             const insights = [
-                { icon: 'fa-trophy', color: 'yellow', title: 'Top Performer', text: agentFilter === 'all' ? 'Jeff currently handles the highest lead allocation with 1,793 leads (50% of total distribution) and has achieved 5 PEO sales.' : `${agentFilter.charAt(0).toUpperCase() + agentFilter.slice(1)} is currently managing ${agentStats[agentFilter].allocated} leads with ${agentStats[agentFilter].sold} PEO sales.` },
-                { icon: 'fa-database', color: 'cyan', title: 'Dominant Source', text: 'ADP PEO - NY is the largest lead source contributing 1,264 leads (35.2% of total volume), significantly outperforming other sources.' },
-                { icon: 'fa-phone', color: 'blue', title: 'Consistency Leader', text: 'William has demonstrated strong call consistency with 3,895 total calls, maintaining steady weekly outreach activity across the reporting period.' },
-                { icon: 'fa-bullseye', color: 'green', title: 'Conversion Insight', text: 'Jeff shows the strongest conversion pipeline with 16 warm leads and 15 in-progress deals, indicating healthy funnel movement.' },
-                { icon: 'fa-exclamation-triangle', color: 'orange', title: 'Allocation Alert', text: 'Julien manages a smaller focused segment (200 leads). Consider rebalancing allocation to optimize team capacity utilization.' },
+                { icon: 'fa-trophy', color: 'yellow', title: 'Top Performer', text: agentFilter === 'all' ? 'Jeff currently handles the highest lead allocation with 1,893 leads (46.8% of total distribution) and has achieved 5 PEO sales.' : `${agentFilter.charAt(0).toUpperCase() + agentFilter.slice(1)} is currently managing ${agentStats[agentFilter].allocated} leads with ${agentStats[agentFilter].sold} PEO sales.` },
+                { icon: 'fa-database', color: 'cyan', title: 'Dominant Source', text: 'ADP PEO - NY is the largest lead source contributing 1,264 leads (32.5% of total volume), significantly outperforming other sources.' },
+                { icon: 'fa-phone', color: 'blue', title: 'Consistency Leader', text: 'William has demonstrated strong call consistency with 4,467 total calls, maintaining steady weekly outreach activity across the reporting period.' },
+                { icon: 'fa-bullseye', color: 'green', title: 'Conversion Insight', text: 'Jeff shows the strongest conversion pipeline with 19 warm leads and 21 in-progress deals, indicating healthy funnel movement.' },
+                { icon: 'fa-exclamation-triangle', color: 'orange', title: 'Allocation Alert', text: 'Julien manages a smaller focused segment (454 leads). Consider rebalancing allocation to optimize team capacity utilization.' },
                 { icon: 'fa-chart-line', color: 'purple', title: 'Trend Analysis', text: monthFilter === 'all' ? 'May shows reduced appointment scheduling across all agents. Recommend increasing outreach cadence to maintain Q2 momentum.' : `Filtering by ${monthFilter.charAt(0).toUpperCase() + monthFilter.slice(1)} shows focused activity patterns. Review agent pacing for this period.` }
             ];
 
@@ -1426,7 +1430,7 @@
                 const total = allocationData.jeff[i] + allocationData.william[i] + allocationData.julien[i];
                 csv += `"${source}",${allocationData.jeff[i]},${allocationData.william[i]},${allocationData.julien[i]},${total}\\n`;
             });
-            csv += `TOTALS,1793,1595,454,3842\\n`;
+            csv += `TOTALS,1893,1695,454,4042\\n`;
             
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
