@@ -62,7 +62,6 @@
         .hidden-section { display: none !important; }
     </style>
 <base target="_blank">
-<base target="_blank">
 </head>
 <body class="bg-dark-900 text-gray-100 font-sans antialiased">
 
@@ -134,7 +133,7 @@
                         <span class="text-cyan-400">Overview</span>
                     </div>
                 </div>
-                
+
                 <div class="flex items-center gap-2 md:gap-4 flex-shrink-0">
                     <div class="hidden md:flex items-center glass-card rounded-lg px-4 py-2 w-48 lg:w-64">
                         <i class="fas fa-search text-gray-400 text-sm mr-3"></i>
@@ -319,10 +318,10 @@
                             <tfoot>
                                 <tr class="border-t border-gray-700 font-semibold text-cyan-400">
                                     <td class="pt-3">TOTALS</td>
-                                    <td class="pt-3 text-right" id="totalJeff">1,603</td>
-                                    <td class="pt-3 text-right" id="totalWilliam">1,228</td>
+                                    <td class="pt-3 text-right" id="totalJeff">2,161</td>
+                                    <td class="pt-3 text-right" id="totalWilliam">1,762</td>
                                     <td class="pt-3 text-right" id="totalJulien">524</td>
-                                    <td class="pt-3 text-right" id="totalAll">3,355</td>
+                                    <td class="pt-3 text-right" id="totalAll">4,447</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -441,22 +440,27 @@
         // ==================== DATA ====================
         const leadSources = [
             { name: 'Vensure PEO - FL', count: 450, trend: 'up' },
-            { name: 'Vensure PEO - NY', count: 480, trend: 'up' },
+            { name: 'Vensure PEO - NY', count: 380, trend: 'up' },
             { name: 'Vensure PEO - GA', count: 220, trend: 'stable' },
-            { name: 'Vensure PEO - NJ', count: 47, trend: 'stable' },
+            { name: 'Vensure PEO - NJ', count: 45, trend: 'down' },
             { name: 'Vensure PEO - PA', count: 35, trend: 'stable' },
-            { name: 'ADP PEO - NY', count: 1518, trend: 'up' },
-            { name: 'ADP PEO - NJ', count: 100, trend: 'down' },
-            { name: 'TRINET PEO - NY', count: 100, trend: 'down' },
-            { name: 'TRINET PEO - NJ', count: 200, trend: 'up' },
-            { name: 'Paychex', count: 205, trend: 'down' }
+            { name: 'ADP PEO - NY', count: 1264, trend: 'up' },
+            { name: 'ADP PEO - NJ', count: 401, trend: 'up' },
+            { name: 'TRINET PEO - NY', count: 433, trend: 'up' },
+            { name: 'TRINET PEO - NJ', count: 53, trend: 'down' },
+            { name: 'Paychex', count: 405, trend: 'up' },
+            { name: 'TRINET PEO - NY', count: 620, trend: 'up' }
         ];
 
         const allocationData = {
-            sources: ['Vensure PEO - FL', 'Vensure PEO - NY', 'Vensure PEO - GA', 'Vensure PEO - NJ', 'Vensure PEO - PA', 'ADP PEO - NY', 'ADP PEO - NJ', 'TRINET PEO - NY', 'TRINET PEO - NJ', 'Paychex'],
-            jeff: [250, 300, 150, 0, 35, 500, 100, 100, 100, 68],
-            william: [200, 180, 70, 47, 0, 564, 0, 0, 100, 67],
-            julien: [0, 0, 0, 0, 0, 454, 0, 0, 0, 70]
+            sources: [
+                'Vensure PEO - FL', 'Vensure PEO - NY', 'Vensure PEO - GA', 'Vensure PEO - NJ', 'Vensure PEO - PA',
+                'ADP PEO - NY', 'ADP PEO - NJ', 'TRINET PEO - NY', 'TRINET PEO - NJ', 'Paychex',
+                'TRINET PEO - NY', 'TRINET PEO - NY', 'TRINET PEO - NY', 'TRINET PEO - NY'
+            ],
+            jeff: [250, 300, 150, 0, 35, 500, 200, 100, 53, 205, 100, 100, 100, 68],
+            william: [200, 180, 70, 47, 0, 564, 201, 133, 0, 200, 0, 100, 0, 67],
+            julien: [0, 0, 0, 0, 0, 454, 0, 0, 0, 0, 0, 0, 0, 70]
         };
 
         const pipelineData = {
@@ -532,8 +536,8 @@
         };
 
         const agentStats = {
-            jeff: { calls: 6152, appt: 21, show: 15, sold: 5, warm: 14, progress: 19, allocated: 1603 },
-            william: { calls: 4987, appt: 14, show: 7, sold: 1, warm: 4, progress: 4, allocated: 1228 },
+            jeff: { calls: 6152, appt: 21, show: 15, sold: 5, warm: 14, progress: 19, allocated: 2161 },
+            william: { calls: 4987, appt: 14, show: 7, sold: 1, warm: 4, progress: 4, allocated: 1762 },
             julien: { calls: 1861, appt: 5, show: 2, sold: 0, warm: 8, progress: 1, allocated: 524 }
         };
 
@@ -565,10 +569,10 @@
         function getFilteredWeeklyData() {
             const month = document.getElementById('monthFilter').value;
             const agent = document.getElementById('agentFilter').value;
-            
+
             let result = {};
             const agentsToInclude = agent === 'all' ? ['jeff', 'william', 'julien'] : [agent];
-            
+
             agentsToInclude.forEach(a => {
                 let weeks = [...weeklyData[a]];
                 if (month !== 'all') {
@@ -576,7 +580,7 @@
                 }
                 result[a] = weeks;
             });
-            
+
             return result;
         }
 
@@ -596,7 +600,7 @@
             const data = getFilteredWeeklyData();
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
             const result = {};
-            
+
             Object.keys(data).forEach(agent => {
                 result[agent] = months.map(m => {
                     const monthWeeks = data[agent].filter(w => w.week.startsWith(m));
@@ -608,7 +612,7 @@
                     };
                 }).filter(m => m.calls > 0 || m.appt > 0 || m.show > 0);
             });
-            
+
             return result;
         }
 
@@ -624,13 +628,13 @@
             const agent = document.getElementById('agentFilter').value;
             const source = document.getElementById('sourceFilter').value;
             currentFilters = { month, agent, source };
-            
+
             // Flash animation
             document.querySelectorAll('.glass-card').forEach(card => {
                 card.style.opacity = '0.6';
                 setTimeout(() => card.style.opacity = '1', 300);
             });
-            
+
             // Re-render everything with filters
             setTimeout(() => {
                 renderKPIs();
@@ -655,10 +659,10 @@
             document.getElementById('btnMonthly').className = period === 'monthly' ? 
                 'px-3 md:px-4 py-2 rounded-lg text-sm font-medium bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 whitespace-nowrap' : 
                 'px-3 md:px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 whitespace-nowrap';
-            
+
             document.getElementById('trendChartTitle').textContent = period === 'weekly' ? 
                 'Calls vs Appointments Trend (Weekly)' : 'Calls vs Appointments Trend (Monthly)';
-            
+
             renderWeeklyCharts();
             renderWeeklyTables();
         }
@@ -667,10 +671,10 @@
         function renderKPIs() {
             const month = document.getElementById('monthFilter').value;
             const agent = document.getElementById('agentFilter').value;
-            
+
             // Calculate dynamic values based on filters
-            let totalLeads = 3355, totalCalls = 13000, totalAppt = 40, totalSold = 6, totalWarm = 26, totalProgress = 24;
-            
+            let totalLeads = 4306, totalCalls = 13000, totalAppt = 40, totalSold = 6, totalWarm = 26, totalProgress = 24;
+
             if (agent !== 'all') {
                 const stats = agentStats[agent];
                 totalLeads = stats.allocated;
@@ -680,13 +684,13 @@
                 totalWarm = stats.warm;
                 totalProgress = stats.progress;
             }
-            
+
             if (month !== 'all') {
                 const data = getFilteredWeeklyData();
                 totalCalls = Object.values(data).reduce((sum, agentWeeks) => sum + agentWeeks.reduce((s, w) => s + w.calls, 0), 0);
                 totalAppt = Object.values(data).reduce((sum, agentWeeks) => sum + agentWeeks.reduce((s, w) => s + w.appt, 0), 0);
             }
-            
+
             const kpis = [
                 { label: 'Total Leads', value: totalLeads, icon: 'fa-users', color: 'cyan', change: '+12.5%', sparkline: [3200, 3500, 3700, totalLeads] },
                 { label: 'Total Calls', value: totalCalls, icon: 'fa-phone', color: 'blue', change: '+8.3%', sparkline: [11000, 12000, 12500, totalCalls] },
@@ -767,7 +771,7 @@
                 const showRate = agent.stats.appt > 0 ? ((agent.stats.show / agent.stats.appt) * 100).toFixed(1) : '0.0';
                 const convRate = agent.stats.appt > 0 ? ((agent.stats.sold / agent.stats.appt) * 100).toFixed(1) : '0.0';
                 const callRate = ((agent.stats.calls / agent.stats.allocated) * 100).toFixed(1);
-                
+
                 return `
                 <div class="glass-card rounded-xl p-6 hover-lift glow-cyan relative overflow-hidden">
                     <div class="absolute top-4 right-4">
@@ -784,7 +788,7 @@
                             <p class="text-xs text-gray-400">Sales Agent</p>
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div class="text-center">
                             <div class="relative w-20 h-20 mx-auto mb-2">
@@ -884,11 +888,11 @@
         function renderSourcesCharts() {
             destroyChart('sourcesBar');
             destroyChart('sourcesPie');
-            
+
             const filtered = getFilteredSources();
             const labels = filtered.map(s => s.name.replace('PEO - ', ''));
             const data = filtered.map(s => s.count);
-            const colors = ['#06b6d4', '#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#6366f1', '#14b8a6', '#f97316'];
+            const colors = ['#06b6d4', '#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#6366f1', '#14b8a6', '#f97316', '#06b6d4'];
 
             const barCtx = document.getElementById('sourcesBarChart').getContext('2d');
             charts.sourcesBar = new Chart(barCtx, {
@@ -1001,13 +1005,13 @@
             let warm = { ...pipelineData.warm };
             let progress = { ...pipelineData.progress };
             let sold = { ...pipelineData.sold };
-            
+
             if (agentFilter !== 'all') {
                 const filteredWarm = {}; filteredWarm[agentFilter] = pipelineData.warm[agentFilter]; warm = filteredWarm;
                 const filteredProgress = {}; filteredProgress[agentFilter] = pipelineData.progress[agentFilter]; progress = filteredProgress;
                 const filteredSold = {}; filteredSold[agentFilter] = pipelineData.sold[agentFilter]; sold = filteredSold;
             }
-            
+
             const warmTotal = Object.values(warm).reduce((a, b) => a + b, 0);
             const progressTotal = Object.values(progress).reduce((a, b) => a + b, 0);
             const soldTotal = Object.values(sold).reduce((a, b) => a + b, 0);
@@ -1104,15 +1108,15 @@
         function renderAllocationCharts() {
             destroyChart('allocationStacked');
             destroyChart('allocationDonut');
-            
+
             const agentFilter = document.getElementById('agentFilter').value;
             const sourceFilter = document.getElementById('sourceFilter').value;
-            
+
             let sources = [...allocationData.sources];
             let jeff = [...allocationData.jeff];
             let william = [...allocationData.william];
             let julien = [...allocationData.julien];
-            
+
             // Filter by source
             if (sourceFilter !== 'all') {
                 const indices = sources.map((s, i) => {
@@ -1127,7 +1131,7 @@
                 william = william.filter((_, i) => indices[i]);
                 julien = julien.filter((_, i) => indices[i]);
             }
-            
+
             const datasets = [];
             if (agentFilter === 'all' || agentFilter === 'jeff') datasets.push({ label: 'Jeff', data: jeff, backgroundColor: 'rgba(6,182,212,0.8)', borderRadius: 4 });
             if (agentFilter === 'all' || agentFilter === 'william') datasets.push({ label: 'William', data: william, backgroundColor: 'rgba(59,130,246,0.8)', borderRadius: 4 });
@@ -1160,7 +1164,7 @@
             if (agentFilter === 'all' || agentFilter === 'jeff') { donutData.push(jeff.reduce((a,b)=>a+b,0)); donutLabels.push('Jeff'); donutColors.push('#06b6d4'); }
             if (agentFilter === 'all' || agentFilter === 'william') { donutData.push(william.reduce((a,b)=>a+b,0)); donutLabels.push('William'); donutColors.push('#3b82f6'); }
             if (agentFilter === 'all' || agentFilter === 'julien') { donutData.push(julien.reduce((a,b)=>a+b,0)); donutLabels.push('Julien'); donutColors.push('#8b5cf6'); }
-            
+
             const total = donutData.reduce((a,b)=>a+b,0);
 
             const donutCtx = document.getElementById('allocationDonutChart').getContext('2d');
@@ -1213,15 +1217,15 @@
             const maxVal = Math.max(...allocationData.jeff, ...allocationData.william, ...allocationData.julien);
             const agents = ['Jeff', 'William', 'Julien'];
             const data = [allocationData.jeff, allocationData.william, allocationData.julien];
-            
+
             const container = document.getElementById('heatmapContainer');
             let html = '<div class="heatmap-grid">';
-            
+
             html += '<div class="p-2 text-xs font-semibold text-gray-400 truncate">Source</div>';
             agents.forEach(agent => {
                 html += `<div class="p-2 text-xs font-semibold text-center text-gray-400">${agent}</div>`;
             });
-            
+
             allocationData.sources.forEach((source, i) => {
                 html += `<div class="p-2 text-xs font-medium flex items-center truncate" title="${source}">${source}</div>`;
                 agents.forEach((agent, j) => {
@@ -1232,7 +1236,7 @@
                     html += `<div class="heatmap-cell p-2 rounded text-center text-xs font-semibold cursor-pointer flex items-center justify-center" style="background: ${bg}; color: ${text};" title="${agent}: ${val} leads">${val > 0 ? val : '-'}</div>`;
                 });
             });
-            
+
             html += '</div>';
             container.innerHTML = html;
         }
@@ -1255,14 +1259,14 @@
         // ==================== WEEKLY PERFORMANCE ====================
         function renderWeeklyCharts() {
             destroyChart('weekly');
-            
+
             const agentFilter = document.getElementById('agentFilter').value;
             let data = currentPeriod === 'monthly' ? getMonthlyAggregates() : getFilteredWeeklyData();
-            
+
             const labels = data.jeff && data.jeff.length > 0 ? data.jeff.map(d => d.week) : 
                           data.william && data.william.length > 0 ? data.william.map(d => d.week) : 
                           data.julien ? data.julien.map(d => d.week) : [];
-            
+
             const datasets = [];
             if ((agentFilter === 'all' || agentFilter === 'jeff') && data.jeff) {
                 datasets.push({
@@ -1298,7 +1302,7 @@
                     borderDash: [5, 5]
                 });
             }
-            
+
             // Add appointments line for first available agent
             const firstAgent = agentFilter === 'all' ? 'jeff' : agentFilter;
             if (data[firstAgent]) {
@@ -1347,7 +1351,7 @@
             const agentFilter = document.getElementById('agentFilter').value;
             const data = currentPeriod === 'monthly' ? getMonthlyAggregates() : getFilteredWeeklyData();
             const agents = agentFilter === 'all' ? ['jeff', 'william', 'julien'] : [agentFilter];
-            
+
             // Hide/show table cards based on agent filter
             document.querySelectorAll('#weeklyTablesContainer > div').forEach(card => {
                 const cardAgent = card.dataset.agent;
@@ -1357,7 +1361,7 @@
                     card.style.display = 'none';
                 }
             });
-            
+
             agents.forEach(agent => {
                 const tbody = document.getElementById(`${agent}WeeklyTable`);
                 if (!data[agent] || data[agent].length === 0) {
@@ -1379,14 +1383,14 @@
         function renderInsights() {
             const agentFilter = document.getElementById('agentFilter').value;
             const monthFilter = document.getElementById('monthFilter').value;
-            
+
             const insights = [
-                { icon: 'fa-trophy', color: 'yellow', title: 'Top Performer', text: agentFilter === 'all' ? 'Jeff currently handles the highest lead allocation with 1,603 leads (47.8% of total distribution) and has achieved 5 PEO sales.' : `${agentFilter.charAt(0).toUpperCase() + agentFilter.slice(1)} is currently managing ${agentStats[agentFilter].allocated} leads with ${agentStats[agentFilter].sold} PEO sales.` },
-                { icon: 'fa-database', color: 'cyan', title: 'Dominant Source', text: 'ADP PEO - NY is the largest lead source contributing 1,518 leads (45.2% of total volume), significantly outperforming other sources.' },
-                { icon: 'fa-phone', color: 'blue', title: 'Consistency Leader', text: 'William has demonstrated strong call consistency with 4,987 total calls, maintaining steady weekly outreach activity across the reporting period.' },
-                { icon: 'fa-bullseye', color: 'green', title: 'Conversion Insight', text: 'Jeff shows the strongest conversion pipeline with 14 warm leads and 19 in-progress deals, indicating healthy funnel movement.' },
-                { icon: 'fa-exclamation-triangle', color: 'orange', title: 'Allocation Alert', text: 'Julien manages a smaller focused segment (524 leads). Consider rebalancing allocation to optimize team capacity utilization.' },
-                { icon: 'fa-chart-line', color: 'purple', title: 'Trend Analysis', text: monthFilter === 'all' ? 'May shows reduced appointment scheduling across all agents. Recommend increasing outreach cadence to maintain Q2 momentum.' : `Filtering by ${monthFilter.charAt(0).toUpperCase() + monthFilter.slice(1)} shows focused activity patterns. Review agent pacing for this period.` }
+                { icon: 'fa-trophy', color: 'yellow', title: 'Top Performer', text: agentFilter === 'all' ? 'Jeff currently handles the highest lead allocation with 2,161 leads (48.6% of total distribution) and has achieved 5 PEO sales.' : `${agentFilter.charAt(0).toUpperCase() + agentFilter.slice(1)} is currently managing ${agentStats[agentFilter].allocated} leads with ${agentStats[agentFilter].sold} PEO sales.` },
+                { icon: 'fa-database', color: 'cyan', title: 'Dominant Source', text: 'ADP PEO - NY is the largest lead source contributing 1,264 leads (29.4% of total volume), significantly outperforming other sources.' },
+                { icon: 'fa-phone', color: 'blue', title: 'Volume Leader', text: 'William delivered the highest weekly call volume in June with 520 calls in the Jun 1-5 period, demonstrating strong outreach momentum.' },
+                { icon: 'fa-bullseye', color: 'green', title: 'Conversion Insight', text: 'Jeff shows the strongest conversion pipeline with 14 warm leads and 19 in-progress deals, indicating healthy funnel movement toward 5 closed sales.' },
+                { icon: 'fa-exclamation-triangle', color: 'orange', title: 'Pipeline Alert', text: 'Julien holds 8 warm leads but 0 sales. Recommend focused follow-up protocol to convert warm inventory into closed deals.' },
+                { icon: 'fa-chart-line', color: 'purple', title: 'Trend Analysis', text: monthFilter === 'all' ? 'June shows increased call activity across all agents. William leads with 520 calls, suggesting renewed Q2 outreach momentum.' : `Filtering by ${monthFilter.charAt(0).toUpperCase() + monthFilter.slice(1)} shows focused activity patterns. Review agent pacing for this period.` }
             ];
 
             const container = document.getElementById('insightsContainer');
@@ -1428,13 +1432,13 @@
 
         // ==================== EXPORTS ====================
         function exportCSV() {
-            let csv = 'Lead Source,Jeff,William,Julien,Total\\n';
+            let csv = 'Lead Source,Jeff,William,Julien,Total\n';
             allocationData.sources.forEach((source, i) => {
                 const total = allocationData.jeff[i] + allocationData.william[i] + allocationData.julien[i];
-                csv += `"${source}",${allocationData.jeff[i]},${allocationData.william[i]},${allocationData.julien[i]},${total}\\n`;
+                csv += `"${source}",${allocationData.jeff[i]},${allocationData.william[i]},${allocationData.julien[i]},${total}\n`;
             });
-            csv += `TOTALS,1603,1228,524,3355\\n`;
-            
+            csv += `TOTALS,2161,1762,524,4447\n`;
+
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
